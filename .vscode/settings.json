@@ -1,0 +1,43 @@
+{
+    "cSpell.words": [
+        "confiar",
+        "criação",
+        "custo",
+        "detalhadamente",
+        "dois",
+        "específica",
+        "explicitamente",
+        "favorito",
+        "favoritos",
+        "força",
+        "integridade",
+        "inválida",
+        "linha",
+        "linhas",
+        "logamos",
+        "Muitos",
+        "opcional",
+        "optam",
+        "paginada",
+        "parsear",
+        "pois",
+        "positivo",
+        "possíveis",
+        "quebrar",
+        "reativo",
+        "transforma",
+        "válida",
+        "validamos",
+        "vazio",
+        "velocidade",
+        "venha"
+    ],
+    "cSpell.customDictionaries": {
+        "custom-dictionary-workspace": {
+            "name": "custom-dictionary-workspace",
+            "path": "${workspaceFolder:mobility-frontend}/.cspell/custom-dictionary-workspace.txt",
+            "addWords": true,
+            "scope": "workspace"
+        }
+    }
+}
