@@ -1,0 +1,102 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.compact-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 52px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-card);
+}
+.compact-details {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+  text-align: left;
+}
+.compact-code {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 3px;
+  border-radius: 11px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+}
+.compact-text {
+  min-width: 0;
+}
+.compact-name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+.compact-route {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-muted);
+  font-size: 9px;
+  line-height: 1.5;
+}
+.compact-route app-icon {
+  width: 10px;
+  height: 10px;
+}
+.compact-buses {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 5px;
+  border-radius: 12px;
+  font-size: 9px;
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+.compact-buses app-icon {
+  width: 11px;
+  height: 11px;
+}
+.compact-favorite {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  min-height: 25px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-muted);
+}
+.compact-favorite app-icon {
+  width: 13px;
+  height: 13px;
+}
+.compact-favorite[aria-pressed='true'] {
+  color: var(--primary);
+}
+.compact-chevron {
+  min-width: 14px;
+  min-height: 30px;
+  color: var(--text-muted);
+}
+
+.favorite-active {
+  color: var(--primary);
+}

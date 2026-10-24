@@ -45,3 +45,6 @@ Thumbs.db
 
 # Environment files
 .env
+
+# Recoverable local snapshots; never publish their contents.
+/.migration-baselines/

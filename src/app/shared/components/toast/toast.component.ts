@@ -9,7 +9,10 @@ import { ToastService } from '../../services/toast.service';
   template: `
     <div
       *ngIf="show()"
-      class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl z-100 animate-in slide-in-from-bottom-10 flex items-center gap-3"
+      role="status"
+      aria-live="polite"
+      style="bottom: var(--toast-bottom, 2rem)"
+      class="fixed left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl z-[1100] animate-in slide-in-from-bottom-10 flex items-center gap-3"
     >
       <div class="w-2 h-2 bg-green-500 rounded-full"></div>
       {{ message() }}
