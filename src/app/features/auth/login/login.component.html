@@ -1,71 +1,52 @@
-<div class="min-h-[80vh] flex items-center justify-center">
-  <div
-    class="w-full max-w-md bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700"
-  >
-    <div class="text-center mb-8">
-      <div class="inline-block bg-blue-600 p-3 rounded-2xl text-white mb-4">
-        <svg
-          xmlns="http:www.w3.org/2000/svg"
-          width="32"
-          height="32"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v7c0 .6.4 1 1 1h2"
-          />
-          <circle cx="7" cy="17" r="2" />
-          <path d="M9 17h6" />
-          <circle cx="17" cy="17" r="2" />
-        </svg>
-      </div>
-      <h1 class="text-2xl font-bold">Bem-vindo de volta</h1>
-      <p class="text-slate-500 dark:text-slate-400 mt-2">Acesse as melhores rotas da cidade</p>
-    </div>
-
-    <form (ngSubmit)="onSubmit()" class="space-y-4">
+<app-auth-layout
+  title="Bem-vinda de volta"
+  description="Acesse sua conta para ver favoritos e histórico."
+>
+  <form class="surface auth-form" (ngSubmit)="onSubmit()" novalidate [attr.aria-busy]="isLoading()">
+    @if (errorMessage()) {
+      <p role="alert" class="auth-error">{{ errorMessage() }}</p>
+    }
+    <fieldset [disabled]="isLoading()" class="auth-fields">
       <div>
-        <label class="block text-sm font-medium mb-1">E-mail</label>
+        <label for="login-email">E-mail</label>
         <input
+          id="login-email"
+          class="auth-input"
           type="email"
-          [(ngModel)]="email"
           name="email"
+          [(ngModel)]="email"
+          autocomplete="username"
+          inputmode="email"
           required
-          class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-          placeholder="exemplo@email.com"
+          maxlength="255"
+          placeholder="seu@email.com"
+          [attr.aria-invalid]="!!errors()['email']"
+          aria-describedby="login-email-error"
         />
+        <p id="login-email-error" class="field-error">{{ errors()['email'] }}</p>
       </div>
       <div>
-        <label class="block text-sm font-medium mb-1">Senha</label>
+        <label for="login-password">Senha</label>
         <input
+          id="login-password"
+          class="auth-input"
           type="password"
-          [(ngModel)]="password"
           name="password"
+          [(ngModel)]="password"
+          autocomplete="current-password"
           required
-          class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-          placeholder="••••••••"
+          minlength="6"
+          maxlength="100"
+          placeholder="Sua senha"
+          [attr.aria-invalid]="!!errors()['password']"
+          aria-describedby="login-password-error"
         />
+        <p id="login-password-error" class="field-error">{{ errors()['password'] }}</p>
       </div>
-      <button
-        type="submit"
-        [disabled]="isLoading()"
-        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl cursor-pointer shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex justify-center items-center gap-2"
-      >
-        <span
-          *ngIf="isLoading()"
-          class="animate-spin rounded-full h-4 w-4 border-2 border-white/20 border-t-white"
-        ></span>
-        Entrar
+      <button type="submit" class="button-primary w-full">
+        {{ isLoading() ? 'Entrando…' : 'Entrar' }}
       </button>
-    </form>
-
-    <div class="mt-6 text-center text-sm">
-      <span class="text-slate-500">Não tem uma conta?</span>
-      <a routerLink="/register" class="ml-1 text-blue-600 font-semibold hover:underline"
-        >Criar conta</a
-      >
-    </div>
-  </div>
-</div>
+    </fieldset>
+  </form>
+  <p class="auth-footer">Não tem conta? <a routerLink="/register">Criar conta</a></p>
+</app-auth-layout>

@@ -1,0 +1,305 @@
+:host {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+.map-page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+.map-page-header {
+  position: relative;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-shrink: 0;
+  min-height: 80px;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) 14px
+    max(20px, env(safe-area-inset-left, 0px));
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.map-heading {
+  min-width: 0;
+}
+.map-heading h1 {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  white-space: nowrap;
+}
+.map-heading p {
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.6;
+  margin-top: 2px;
+}
+.map-page-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.map-control {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  min-height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-main);
+  background: var(--bg-card);
+}
+.map-control app-icon {
+  width: 17px;
+  height: 17px;
+}
+.filter-control {
+  border-color: transparent;
+  background: transparent;
+}
+.map-control.is-active {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+.map-view {
+  position: relative;
+  isolation: isolate;
+  flex: 1;
+  min-height: 0;
+  background: var(--bg-main);
+}
+.map-view > app-map {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  border-radius: 0;
+}
+.map-live-label {
+  position: absolute;
+  z-index: 500;
+  top: 16px;
+  left: max(16px, env(safe-area-inset-left, 0px));
+  max-width: calc(100% - 82px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-main);
+  background: var(--bg-card);
+  font-size: 10px;
+  font-weight: 700;
+}
+.map-live-label i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--turquoise);
+  flex-shrink: 0;
+}
+.map-live-label .has-error {
+  background: var(--text-muted);
+}
+.map-zoom {
+  position: absolute;
+  z-index: 500;
+  top: 16px;
+  right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 8px;
+}
+.map-zoom button {
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 400;
+  box-shadow: var(--shadow-card);
+}
+.map-line-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  flex-shrink: 0;
+  min-height: 62px;
+  align-items: center;
+  padding: 10px max(12px, env(safe-area-inset-right, 0px)) 10px
+    max(12px, env(safe-area-inset-left, 0px));
+  border-top: 1px solid var(--border);
+  background: var(--bg-card);
+  scrollbar-width: none;
+}
+.map-line-strip::-webkit-scrollbar,
+.map-filters::-webkit-scrollbar {
+  display: none;
+}
+.map-line-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+}
+.map-line-chip strong {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 2px 3px;
+  background: var(--primary);
+  color: var(--on-primary);
+  border-radius: 50%;
+  font-size: 10px;
+}
+.map-line-chip.is-turquoise strong {
+  background: var(--turquoise);
+}
+.map-line-chip.is-selected {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+.map-line-chip span {
+  max-width: 130px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.map-strip-empty {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.map-filters {
+  position: absolute;
+  top: calc(100% - 4px);
+  left: 12px;
+  right: 12px;
+  max-width: 400px;
+  margin-left: auto;
+  display: grid;
+  gap: 10px;
+  max-height: calc(100dvh - 170px);
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow-card);
+  background: var(--bg-card);
+  font-size: 12px;
+}
+.map-filters > label:first-child {
+  font-weight: 700;
+}
+.map-filters > input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-input);
+}
+.map-filters > p {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.map-filters > a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.map-direction {
+  display: flex;
+  gap: 8px;
+}
+.map-direction button {
+  padding: 6px 12px;
+  min-height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+.map-direction .is-active {
+  background: var(--text-main);
+  color: var(--bg-main);
+}
+.map-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+}
+.map-checkbox input {
+  accent-color: var(--primary);
+}
+.map-close-filters {
+  min-height: 36px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 700;
+}
+.map-message,
+.map-empty {
+  position: absolute;
+  z-index: 500;
+  color: var(--text-main);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  padding: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.map-message {
+  left: 12px;
+  right: 12px;
+  bottom: 30px;
+}
+.map-empty {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 48px);
+  max-width: 320px;
+  text-align: center;
+}
+.map-message button,
+.map-empty button,
+.map-empty a {
+  color: var(--primary);
+  min-height: 32px;
+}
+.map-empty a {
+  display: block;
+  text-decoration: underline;
+}
+@media (max-width: 359px) {
+  .map-page-header {
+    padding-inline: max(12px, env(safe-area-inset-left, 0px))
+      max(12px, env(safe-area-inset-right, 0px));
+    gap: 6px;
+  }
+  .map-heading h1 {
+    font-size: 16px;
+  }
+  .map-page-tools {
+    gap: 4px;
+  }
+  .map-page-tools .map-control {
+    width: 30px;
+    min-height: 30px;
+  }
+}

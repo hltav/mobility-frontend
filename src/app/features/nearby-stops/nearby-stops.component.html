@@ -1,0 +1,189 @@
+<section class="nearby-page" aria-labelledby="nearby-title">
+  <header class="nearby-header">
+    <div class="nearby-toolbar">
+      <a class="nearby-back" [routerLink]="homePath" aria-label="Voltar para a Home"
+        ><span aria-hidden="true">←</span></a
+      >
+      <h1 id="nearby-title">Paradas próximas</h1>
+      <app-theme-switcher />
+    </div>
+    <button
+      type="button"
+      class="nearby-location"
+      (click)="useCurrentLocation()"
+      [disabled]="loading() || locating()"
+    >
+      <app-icon name="locate" />{{ locating() ? 'Obtendo localização…' : 'Usar localização atual' }}
+    </button>
+    @if (originLabel()) {
+      <p class="nearby-origin">{{ originLabel() }}</p>
+    }
+    <p class="nearby-radius">Raio 500 m • até 5 paradas{{ isPreview ? ' • DEMO' : '' }}</p>
+  </header>
+  <div class="nearby-content">
+    @if (loading()) {
+      <p class="nearby-state" role="status">Buscando paradas próximas…</p>
+    } @else if (error()) {
+      <div class="nearby-state" role="alert">
+        <p>{{ error() }}</p>
+        <button type="button" (click)="retry()">Tentar novamente</button
+        ><a [routerLink]="homePath">Informar origem na Home</a>
+        @if (previewEnabled && !isPreview) {
+          <a routerLink="/preview/stops">Visualizar com dados de exemplo</a>
+        }
+      </div>
+    } @else if (!stops().length) {
+      <div class="nearby-state" role="status">
+        <p>
+          {{
+            attempted()
+              ? 'Nenhuma parada encontrada em um raio de 500 m.'
+              : 'Use sua localização ou informe uma origem na Home para encontrar paradas próximas.'
+          }}
+        </p>
+        @if (previewEnabled && !isPreview) {
+          <a routerLink="/preview/stops">Visualizar com dados de exemplo</a>
+        }
+      </div>
+    } @else {
+      <section class="nearby-list" aria-labelledby="nearby-list-title">
+        <div class="nearby-list-heading">
+          <h2 id="nearby-list-title">
+            {{ stops().length }} paradas • {{ distance(stops()[0].distance_meters) }} mais próxima
+          </h2>
+          <span><i aria-hidden="true"></i>{{ isPreview ? 'DEMO' : 'Atualizado' }}</span>
+        </div>
+        <ol>
+          @for (stop of stops(); track stop.id; let last = $last) {
+            <li [class.is-selected]="selectedStop()?.id === stop.id" [class.is-last]="last">
+              <span class="nearby-rail" aria-hidden="true"><i></i></span
+              ><button
+                type="button"
+                class="nearby-stop-main"
+                [attr.aria-pressed]="selectedStop()?.id === stop.id"
+                [attr.aria-label]="'Selecionar parada ' + stop.name"
+                (click)="selectStop(stop)"
+              >
+                <span class="nearby-stop-title"
+                  ><strong>{{ stop.name }}</strong>
+                  @if (selectedStop()?.id === stop.id) {
+                    <small>ATUAL</small>
+                  }</span
+                ><span class="nearby-stop-meta"
+                  ><span>{{ distance(stop.distance_meters) }}</span>
+                  @for (code of stop.line_codes; track code) {
+                    <small>{{ code }}</small>
+                  }
+                  @if (!stop.line_codes.length && stop.line_ids.length) {
+                    <span>{{ stop.line_ids.length }} linhas vinculadas</span>
+                  }
+                </span></button
+              ><button
+                type="button"
+                class="nearby-stop-action"
+                [attr.aria-label]="'Ver ' + stop.name + ' no mapa'"
+                (click)="openMap(stop, stopMap)"
+              >
+                <app-icon name="pin" /></button
+              ><button
+                type="button"
+                class="nearby-stop-action"
+                [attr.aria-label]="'Informações de ' + stop.name"
+                (click)="openInfo(stop, stopInfo)"
+              >
+                <app-icon name="info" /></button
+              ><a
+                class="nearby-stop-action nearby-navigate"
+                [href]="directionsUrl(stop)"
+                target="_blank"
+                rel="noopener noreferrer"
+                [attr.aria-label]="'Traçar caminhada até ' + stop.name"
+                ><app-icon name="navigation"
+              /></a>
+            </li>
+          }
+        </ol>
+      </section>
+      <div class="nearby-line-chips" aria-label="Linhas da parada selecionada">
+        @for (line of lineChips(); track line.code) {
+          <span
+            >{{ line.code }}
+            @if (line.minutes != null) {
+              • {{ line.minutes }} min
+            }
+          </span>
+        }
+      </div>
+      <p class="nearby-footnote">
+        {{
+          isPreview
+            ? 'Dados de exemplo. Distâncias, paradas e tempos desta prévia são simulados.'
+            : 'Distâncias em linha reta a partir da origem consultada. Tempos são exibidos somente quando disponíveis.'
+        }}
+      </p>
+    }
+  </div>
+  <dialog
+    #stopMap
+    class="nearby-dialog"
+    aria-labelledby="stop-map-title"
+    (close)="mapOpen.set(false)"
+  >
+    <header>
+      <h2 id="stop-map-title">{{ selectedStop()?.name }}</h2>
+      <button type="button" aria-label="Fechar mapa da parada" (click)="stopMap.close()">
+        <app-icon name="close" />
+      </button>
+    </header>
+    @if (mapOpen()) {
+      <app-map
+        [height]="'min(55dvh, 360px)'"
+        [focusedPoint]="selectedStop()"
+        [centerLat]="selectedStop()?.lat ?? -23.5505"
+        [centerLng]="selectedStop()?.lng ?? -46.6333"
+      />
+    }
+    <p>{{ isPreview ? 'Localização de exemplo' : 'Localização da parada' }}</p>
+  </dialog>
+  <dialog
+    #stopInfo
+    class="nearby-dialog"
+    aria-labelledby="stop-info-title"
+    (close)="infoOpen.set(false)"
+  >
+    <header>
+      <h2 id="stop-info-title">{{ selectedStop()?.name }}</h2>
+      <button type="button" aria-label="Fechar informações da parada" (click)="stopInfo.close()">
+        <app-icon name="close" />
+      </button>
+    </header>
+    @if (selectedStop(); as stop) {
+      <dl class="nearby-stop-info">
+        <div>
+          <dt>Distância da origem</dt>
+          <dd>{{ distance(stop.distance_meters) }}</dd>
+        </div>
+        @if (stop.address) {
+          <div>
+            <dt>Endereço</dt>
+            <dd>{{ stop.address }}</dd>
+          </div>
+        }
+        <div>
+          <dt>Linhas</dt>
+          <dd>
+            {{
+              stop.line_codes.join(' • ') ||
+                (stop.line_ids.length
+                  ? stop.line_ids.length + ' linhas vinculadas'
+                  : 'Nenhuma linha informada')
+            }}
+          </dd>
+        </div>
+      </dl>
+      @if (isPreview) {
+        <p>Informações simuladas para visualizar a interface.</p>
+      }
+    }
+  </dialog>
+</section>

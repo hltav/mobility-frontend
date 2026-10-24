@@ -1,0 +1,63 @@
+/* Light details keep a contrasting header while the content uses light surfaces. */
+.details-light .details-hero {
+  margin: calc(-1 * max(24px, env(safe-area-inset-top, 0px)))
+    calc(-1 * max(var(--details-gutter), env(safe-area-inset-right, 0px))) 0
+    calc(-1 * max(var(--details-gutter), env(safe-area-inset-left, 0px)));
+  padding: max(24px, env(safe-area-inset-top, 0px))
+    max(var(--details-gutter), env(safe-area-inset-right, 0px)) 20px
+    max(var(--details-gutter), env(safe-area-inset-left, 0px));
+  color: var(--details-hero-text);
+  background: var(--details-hero-bg);
+  border-radius: 0 0 24px 24px;
+}
+.details-light .details-hero .details-icon,
+.details-light .line-metadata > div,
+.details-light .demo-badge,
+.details-light .details-hero .details-note {
+  color: var(--details-hero-text);
+  background: var(--details-hero-surface);
+  border-color: var(--details-hero-border);
+}
+.details-light .details-hero .details-icon[aria-pressed='true'] {
+  color: var(--on-primary);
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.details-light .line-identity > p,
+.details-light .line-metadata dt,
+.details-light .details-hero .details-state {
+  color: var(--details-hero-muted);
+}
+.details-light .line-badges .active-badge {
+  color: var(--details-hero-accent);
+}
+.details-light .direction-selector {
+  position: relative;
+  margin-top: -12px;
+  box-shadow: var(--shadow-card);
+}
+.details-light .line-map-card {
+  position: relative;
+  box-shadow: var(--shadow-card);
+}
+.details-light .map-live-badge {
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.12);
+}
+.details-light .map-footer p {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+.details-light .map-footer button {
+  position: absolute;
+  right: 12px;
+  bottom: 88px;
+  justify-content: center;
+  padding-inline: 12px;
+  border-radius: 20px;
+  background: var(--details-hero-bg);
+  color: var(--on-deep);
+  box-shadow: var(--shadow-card);
+  z-index: 1;
+}

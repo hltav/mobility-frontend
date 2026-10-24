@@ -1,0 +1,172 @@
+<section class="map-page" aria-labelledby="map-title">
+  <header class="map-page-header">
+    <div class="map-heading">
+      <h1 id="map-title">Mapa ao vivo</h1>
+      <p>São Paulo • {{ lines().length }} linhas{{ isPreview ? ' • DEMO' : '' }}</p>
+    </div>
+    <div class="map-page-tools">
+      <app-theme-switcher /><button
+        type="button"
+        class="map-control"
+        (click)="useCurrentLocation()"
+        [disabled]="locating()"
+        [attr.aria-label]="isPreview ? 'Simular localização atual' : 'Usar localização atual'"
+        [attr.aria-busy]="locating()"
+      >
+        <app-icon name="locate" /></button
+      ><button
+        type="button"
+        class="map-control filter-control"
+        aria-label="Filtros do mapa"
+        [attr.aria-expanded]="filtersOpen()"
+        aria-controls="map-filters"
+        [class.is-active]="filtersOpen()"
+        (click)="filtersOpen.set(!filtersOpen())"
+      >
+        <app-icon name="filter" />
+      </button>
+    </div>
+    @if (filtersOpen()) {
+      <div id="map-filters" class="map-filters">
+        <label for="map-line-filter">Filtrar linhas</label
+        ><input
+          id="map-line-filter"
+          type="search"
+          [ngModel]="lineFilter()"
+          (ngModelChange)="setLineFilter($event)"
+          placeholder="Código, nome, origem ou destino"
+        />
+        <div class="map-direction" role="group" aria-label="Sentido das linhas">
+          <button
+            type="button"
+            [class.is-active]="direction() === 0"
+            [attr.aria-pressed]="direction() === 0"
+            (click)="setDirection(0)"
+          >
+            Todas</button
+          ><button
+            type="button"
+            [class.is-active]="direction() === 1"
+            [attr.aria-pressed]="direction() === 1"
+            [disabled]="!hasDirectionData()"
+            (click)="setDirection(1)"
+          >
+            Ida</button
+          ><button
+            type="button"
+            [class.is-active]="direction() === 2"
+            [attr.aria-pressed]="direction() === 2"
+            [disabled]="!hasDirectionData()"
+            (click)="setDirection(2)"
+          >
+            Volta
+          </button>
+        </div>
+        <label class="map-checkbox"
+          ><input
+            type="checkbox"
+            [ngModel]="onlyMoving()"
+            (ngModelChange)="onlyMoving.set($event)"
+          />Somente veículos em movimento</label
+        ><label class="map-checkbox"
+          ><input
+            type="checkbox"
+            [ngModel]="showRoute()"
+            (ngModelChange)="setShowRoute($event)"
+          />Mostrar trajeto da linha selecionada</label
+        >
+        @if (isPreview) {
+          <p>Dados de exemplo • posições e trajeto simulados.</p>
+          <a routerLink="/map">Usar dados reais</a>
+        } @else if (previewEnabled) {
+          <a routerLink="/preview/map">Visualizar com dados de exemplo</a>
+        }
+        <button type="button" class="map-close-filters" (click)="filtersOpen.set(false)">
+          Concluir
+        </button>
+      </div>
+    }
+  </header>
+  <div class="map-view">
+    <app-map
+      #liveMap
+      [height]="'100%'"
+      [showZoomControls]="false"
+      [fitKey]="selectedLine()?.id ?? null"
+      [buses]="visibleBuses()"
+      [routePoints]="routePoints()"
+      [userPoint]="userPoint()"
+    />
+    <span class="map-live-label" role="status"
+      ><i aria-hidden="true" [class.has-error]="busesError()"></i>{{ liveLabel() }}</span
+    >
+    <div class="map-zoom" role="group" aria-label="Zoom do mapa">
+      <button
+        type="button"
+        class="map-control"
+        aria-label="Aproximar mapa"
+        (click)="liveMap.zoomIn()"
+      >
+        +</button
+      ><button
+        type="button"
+        class="map-control"
+        aria-label="Afastar mapa"
+        (click)="liveMap.zoomOut()"
+      >
+        −
+      </button>
+    </div>
+    @if (!loadingLines() && (linesError() || !lines().length)) {
+      <div class="map-empty" role="status">
+        <p>{{ linesError() || 'Nenhuma linha disponível para exibir no mapa.' }}</p>
+        <button type="button" (click)="loadLines()">Tentar novamente</button>
+        @if (previewEnabled && !isPreview) {
+          <a routerLink="/preview/map">Visualizar com dados de exemplo</a>
+        }
+      </div>
+    } @else if (!loadingLines() && !visibleLines().length) {
+      <p class="map-message" role="status">Nenhuma linha corresponde aos filtros.</p>
+    } @else if (!loadingLines() && !selectedLine()) {
+      <p class="map-message" role="status">
+        Posições indisponíveis para estas linhas. Você pode explorar o mapa ou consultar a busca.
+      </p>
+    } @else if (busesError()) {
+      <p class="map-message" role="status">
+        Não foi possível atualizar as posições.
+        <button type="button" (click)="refreshBuses()">Tentar novamente</button>
+      </p>
+    } @else if (locationMessage() || routeError()) {
+      <p class="map-message" role="status">{{ locationMessage() || routeError() }}</p>
+    } @else if (selectedLine() && !loadingBuses() && !visibleBuses().length) {
+      <p class="map-message" role="status">
+        {{
+          onlyMoving()
+            ? 'Nenhum veículo em movimento para esta linha.'
+            : 'Nenhum veículo localizado para esta linha no momento.'
+        }}
+      </p>
+    }
+  </div>
+  <nav class="map-line-strip" aria-label="Selecionar linha no mapa">
+    @for (line of visibleLines(); track line.id; let index = $index) {
+      <button
+        type="button"
+        class="map-line-chip"
+        [class.is-selected]="selectedLine()?.id === line.id"
+        [class.is-turquoise]="index % 3 === 1"
+        [attr.aria-pressed]="selectedLine()?.id === line.id"
+        [disabled]="line.database_id == null"
+        [attr.aria-label]="'Mostrar linha ' + line.code + ', ' + line.name"
+        (click)="selectLine(line)"
+      >
+        <strong>{{ line.code }}</strong
+        ><span>{{ line.name }}</span>
+      </button>
+    } @empty {
+      <span class="map-strip-empty">{{
+        loadingLines() ? 'Carregando linhas…' : 'Ajuste os filtros ou busque uma linha.'
+      }}</span>
+    }
+  </nav>
+</section>

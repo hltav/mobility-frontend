@@ -1,1 +1,82 @@
-<p>register works!</p>
+<app-auth-layout title="Crie sua conta" description="Leva menos de 30s. Salve linhas favoritas.">
+  <form class="surface auth-form" (ngSubmit)="onSubmit()" novalidate [attr.aria-busy]="isLoading()">
+    @if (errorMessage()) {
+      <p role="alert" class="auth-error">{{ errorMessage() }}</p>
+    }
+    <fieldset [disabled]="isLoading()" class="auth-fields">
+      <div>
+        <label for="register-name">Nome completo</label
+        ><input
+          id="register-name"
+          class="auth-input"
+          name="name"
+          [(ngModel)]="name"
+          autocomplete="name"
+          required
+          minlength="3"
+          maxlength="100"
+          [attr.aria-invalid]="!!errors()['name']"
+          aria-describedby="register-name-error"
+        />
+        <p id="register-name-error" class="field-error">{{ errors()['name'] }}</p>
+      </div>
+      <div>
+        <label for="register-email">E-mail</label
+        ><input
+          id="register-email"
+          class="auth-input"
+          type="email"
+          name="email"
+          [(ngModel)]="email"
+          autocomplete="username"
+          inputmode="email"
+          required
+          maxlength="255"
+          [attr.aria-invalid]="!!errors()['email']"
+          aria-describedby="register-email-error"
+        />
+        <p id="register-email-error" class="field-error">{{ errors()['email'] }}</p>
+      </div>
+      <div>
+        <label for="register-password">Senha</label>
+        <input
+          id="register-password"
+          class="auth-input"
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          autocomplete="new-password"
+          required
+          minlength="6"
+          maxlength="100"
+          [attr.aria-invalid]="!!errors()['password']"
+          aria-describedby="register-password-error"
+        />
+        <p id="register-password-error" class="field-error">{{ errors()['password'] }}</p>
+      </div>
+      <div>
+        <label for="register-confirmation">Confirmar senha</label
+        ><input
+          id="register-confirmation"
+          class="auth-input"
+          type="password"
+          name="password_confirmation"
+          [(ngModel)]="passwordConfirmation"
+          autocomplete="new-password"
+          required
+          minlength="6"
+          maxlength="100"
+          [attr.aria-invalid]="!!errors()['password_confirmation']"
+          aria-describedby="register-confirmation-error"
+        />
+        <p id="register-confirmation-error" class="field-error">
+          {{ errors()['password_confirmation'] }}
+        </p>
+      </div>
+      <button type="submit" class="auth-create-button w-full">
+        {{ isLoading() ? 'Criando conta…' : 'Criar conta' }}
+      </button>
+    </fieldset>
+  </form>
+  <p class="auth-footer">Já tem conta? <a routerLink="/login">Entrar</a></p>
+</app-auth-layout>

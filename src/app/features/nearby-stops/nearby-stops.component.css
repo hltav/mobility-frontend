@@ -1,0 +1,319 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.nearby-page {
+  max-width: 48rem;
+  margin-inline: auto;
+}
+.nearby-header {
+  padding: max(24px, env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) 16px
+    max(20px, env(safe-area-inset-left, 0px));
+  border-radius: 0 0 24px 24px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+}
+.nearby-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.nearby-back {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  min-height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  flex-shrink: 0;
+  font-size: 22px;
+}
+.nearby-toolbar h1 {
+  flex: 1;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+.nearby-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-top: 14px;
+  padding-inline: 14px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.nearby-location app-icon {
+  width: 15px;
+  height: 15px;
+}
+.nearby-origin {
+  color: var(--text-muted);
+  font-size: 10px;
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+.nearby-radius {
+  display: inline-block;
+  padding: 5px 8px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.nearby-content {
+  padding: 16px max(20px, env(safe-area-inset-right, 0px))
+    max(28px, env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
+}
+.nearby-list {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  background: var(--bg-card);
+}
+.nearby-list-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 12px;
+  color: var(--text-muted);
+}
+.nearby-list-heading h2 {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.nearby-list-heading > span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  white-space: nowrap;
+}
+.nearby-list-heading i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--turquoise);
+}
+.nearby-list li {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) 24px 24px 30px;
+  align-items: center;
+  gap: 6px;
+  min-height: 56px;
+  padding: 4px 10px;
+  border-top: 1px solid var(--border);
+}
+.nearby-rail {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  justify-content: center;
+  padding-top: 7px;
+}
+.nearby-rail::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  bottom: -9px;
+  width: 2px;
+  background: var(--border);
+}
+.is-last .nearby-rail::after {
+  display: none;
+}
+.nearby-rail i {
+  position: relative;
+  z-index: 1;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--text-muted);
+  border-radius: 50%;
+  background: var(--bg-card);
+}
+.is-last .nearby-rail i {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.is-selected .nearby-rail i {
+  background: var(--primary);
+  border-color: var(--on-primary);
+  box-shadow: 0 0 0 4px var(--primary-soft);
+}
+.nearby-stop-main {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  text-align: left;
+  min-height: 46px;
+  align-content: center;
+}
+.nearby-stop-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.nearby-stop-title strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+}
+.nearby-stop-title small {
+  flex-shrink: 0;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 8px;
+  letter-spacing: 0.6px;
+  font-weight: 800;
+  color: var(--on-primary);
+  background: var(--primary);
+}
+.nearby-stop-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.nearby-stop-meta small {
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 8px;
+}
+.nearby-stop-action {
+  display: grid;
+  place-items: center;
+  min-height: 32px;
+  color: var(--text-muted);
+}
+.nearby-stop-action app-icon {
+  width: 15px;
+  height: 15px;
+}
+.nearby-navigate {
+  border: 1px solid var(--border);
+  border-radius: 50%;
+}
+.nearby-line-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.nearby-line-chips > span {
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 9px;
+  font-weight: 700;
+}
+.nearby-footnote {
+  margin-top: 16px;
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.7;
+  text-align: center;
+}
+.nearby-state {
+  padding: 24px 16px;
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.7;
+  text-align: center;
+}
+.nearby-state a,
+.nearby-state button {
+  display: block;
+  width: fit-content;
+  margin: 8px auto 0;
+  min-height: 32px;
+  color: var(--primary);
+  font-weight: 700;
+}
+.nearby-dialog {
+  width: calc(100% - 32px);
+  max-width: 32rem;
+  margin: auto;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--bg-card);
+  color: var(--text-main);
+}
+.nearby-dialog::backdrop {
+  background: rgb(2 6 23 / 0.7);
+}
+.nearby-dialog > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.nearby-dialog h2 {
+  font-size: 15px;
+  font-weight: 800;
+}
+.nearby-dialog header button {
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  min-height: 32px;
+}
+.nearby-dialog app-map {
+  border-radius: 14px;
+}
+.nearby-dialog > p {
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.6;
+  margin-top: 12px;
+}
+.nearby-stop-info {
+  display: grid;
+  gap: 12px;
+  font-size: 13px;
+}
+.nearby-stop-info dt {
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-bottom: 3px;
+}
+@media (max-width: 359px) {
+  .nearby-header {
+    padding-inline: max(12px, env(safe-area-inset-left, 0px))
+      max(12px, env(safe-area-inset-right, 0px));
+  }
+  .nearby-content {
+    padding-inline: max(12px, env(safe-area-inset-left, 0px))
+      max(12px, env(safe-area-inset-right, 0px));
+  }
+  .nearby-toolbar {
+    gap: 8px;
+  }
+  .nearby-toolbar h1 {
+    font-size: 15px;
+  }
+  .nearby-list li {
+    padding-inline: 8px;
+    gap: 4px;
+  }
+}

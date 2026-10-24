@@ -1,0 +1,173 @@
+<section
+  class="profile-page"
+  [class.profile-light]="!theme.isDark()"
+  aria-labelledby="profile-title"
+>
+  <header class="profile-header">
+    <div class="profile-identity">
+      <span class="profile-avatar" aria-hidden="true">{{ initials }}</span>
+      <div class="profile-account">
+        <h1 id="profile-title">{{ user?.name || 'Seu perfil' }}</h1>
+        <p>{{ user?.email || 'E-mail não informado' }}</p>
+      </div>
+      <app-theme-switcher />
+    </div>
+    <dl class="profile-stats">
+      <div>
+        <dt>FAVORITAS</dt>
+        <dd>{{ favoritesCount() ?? '—' }}</dd>
+      </div>
+      <div>
+        <dt>BUSCAS</dt>
+        <dd
+          [attr.aria-label]="
+            isPreview ? '24 buscas de exemplo' : 'Histórico de buscas indisponível'
+          "
+        >
+          {{ isPreview ? 24 : '—' }}
+        </dd>
+      </div>
+      <div>
+        <dt>ROTAS</dt>
+        <dd
+          [attr.aria-label]="isPreview ? '3 rotas de exemplo' : 'Histórico de rotas indisponível'"
+        >
+          {{ isPreview ? 3 : '—' }}
+        </dd>
+      </div>
+    </dl>
+  </header>
+  <div class="profile-body">
+    @if (isPreview) {
+      <p class="profile-demo">Prévia • estatísticas de exemplo</p>
+    }
+    <section class="profile-settings" aria-label="Configurações da conta">
+      <button type="button" class="profile-menu-item" (click)="preferences(themeSection)">
+        <span class="profile-menu-icon"><app-icon name="settings" /></span
+        ><span class="profile-menu-label"
+          ><strong>Preferências <span class="future-badge">FUTURO</span></strong
+          ><small>Notificações, tema, idioma</small></span
+        ><span class="profile-chevron" aria-hidden="true">›</span>
+      </button>
+      <button
+        type="button"
+        class="profile-menu-item"
+        (click)="information.set('privacy'); informationDialog.showModal()"
+      >
+        <span class="profile-menu-icon"><app-icon name="shield" /></span
+        ><span class="profile-menu-label"
+          ><strong>Privacidade e dados</strong><small>SPTrans, localização</small></span
+        ><span class="profile-chevron" aria-hidden="true">›</span>
+      </button>
+      <button
+        type="button"
+        class="profile-menu-item"
+        (click)="information.set('about'); informationDialog.showModal()"
+      >
+        <span class="profile-menu-icon"><app-icon name="info" /></span
+        ><span class="profile-menu-label"
+          ><strong>Sobre o Mobility</strong><small>Mobilidade em São Paulo</small></span
+        ><span class="profile-chevron" aria-hidden="true">›</span>
+      </button>
+      <button
+        type="button"
+        class="profile-menu-item"
+        (click)="information.set('help'); informationDialog.showModal()"
+      >
+        <span class="profile-menu-icon"><app-icon name="bell" /></span
+        ><span class="profile-menu-label"
+          ><strong>Central de ajuda <span class="future-badge">FUTURO</span></strong
+          ><small>FAQ, contato, status</small></span
+        ><span class="profile-chevron" aria-hidden="true">›</span>
+      </button>
+      <div class="profile-theme" #themeSection>
+        <div class="profile-theme-heading">
+          <h2>TEMA</h2>
+          <span>{{ theme.theme() }}</span>
+        </div>
+        <div class="profile-theme-options" role="group" aria-label="Preferência de tema">
+          @for (option of options; track option.value) {
+            <button
+              type="button"
+              [class.is-selected]="theme.theme() === option.value"
+              [attr.aria-pressed]="theme.theme() === option.value"
+              [attr.aria-label]="'Selecionar tema ' + option.description"
+              (click)="theme.set(option.value)"
+            >
+              <app-icon [name]="option.icon" /><strong>{{ option.label }}</strong
+              ><small>{{ option.description }}</small>
+            </button>
+          }
+        </div>
+      </div>
+    </section>
+    <aside class="profile-future" aria-labelledby="future-title">
+      <h2 id="future-title"><app-icon name="info" /> Propostas futuras</h2>
+      <ul>
+        <li>Atualização dos dados do perfil.</li>
+        <li>Previsões de chegada dos ônibus nas paradas.</li>
+        <li>Rotas combinando diferentes meios de transporte.</li>
+      </ul>
+    </aside>
+    @if (pwa.installAvailable()) {
+      <button type="button" class="profile-install" (click)="pwa.install()">
+        <app-icon name="monitor" /> Instalar Mobility
+      </button>
+    }
+    @if (pwa.installError()) {
+      <p class="profile-install-error" role="alert">{{ pwa.installError() }}</p>
+    }
+    <button type="button" class="profile-logout" (click)="logout()">
+      <app-icon name="logout" />{{ isPreview ? 'Sair da prévia' : 'Sair da conta' }}
+    </button>
+    <footer>
+      Mobility Project © {{ isPreview ? '2026' : currentYear }} • São Paulo • Dados SPTrans • PWA •
+      Tema {{ theme.theme() }}
+    </footer>
+  </div>
+</section>
+<dialog #informationDialog class="profile-dialog" aria-labelledby="profile-dialog-title">
+  <div class="profile-dialog-heading">
+    <h2 id="profile-dialog-title">
+      {{
+        information() === 'privacy'
+          ? 'Privacidade e dados'
+          : information() === 'about'
+            ? 'Sobre o Mobility'
+            : 'Central de ajuda'
+      }}
+    </h2>
+    <button type="button" aria-label="Fechar informações" (click)="informationDialog.close()">
+      <app-icon name="close" />
+    </button>
+  </div>
+  @switch (information()) {
+    @case ('privacy') {
+      <p>
+        A localização é solicitada quando você escolhe usar sua posição para encontrar linhas ou
+        paradas próximas. Você pode revogar essa permissão nas configurações do navegador.
+      </p>
+      <p>
+        As informações de transporte são fornecidas pela SPTrans. Na prévia, os veículos, trajetos e
+        horários são exemplos simulados.
+      </p>
+    }
+    @case ('about') {
+      <p>
+        Mobility ajuda você a consultar linhas, acompanhar veículos e encontrar paradas em São
+        Paulo.
+      </p>
+      <p>Salve suas linhas favoritas e escolha o tema que preferir.</p>
+    }
+    @case ('help') {
+      <p>A central de ajuda está prevista para uma próxima versão.</p>
+      <p>
+        Para consultar uma linha, use Buscar. Para encontrar paradas, preencha a origem na tela
+        Início e toque em Paradas.
+      </p>
+    }
+  }
+  <button type="button" class="button-secondary" (click)="informationDialog.close()">
+    Entendi
+  </button>
+</dialog>

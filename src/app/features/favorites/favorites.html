@@ -1,1 +1,81 @@
-<p>list works!</p>
+<section class="favorites-page" aria-labelledby="favorites-title">
+  <header class="favorites-header">
+    <div>
+      <h1 id="favorites-title">Favoritos</h1>
+      <p>Suas linhas salvas para acesso rápido.</p>
+    </div>
+    <app-theme-switcher />
+  </header>
+  <div class="favorites-body" [attr.aria-busy]="isLoading()">
+    @if (isPreview) {
+      <p class="favorites-demo">Prévia • favoritos temporários</p>
+    }
+    @if (isLoading()) {
+      <div class="favorites-message" role="status">
+        <app-icon name="heart" />
+        <p>Carregando suas linhas favoritas…</p>
+      </div>
+    } @else if (error()) {
+      <div class="favorites-message" role="alert">
+        <app-icon name="info" />
+        <h2>Seus favoritos estão indisponíveis</h2>
+        <p>{{ error() }}</p>
+        <button type="button" class="button-secondary" (click)="loadFavorites()">
+          Tentar novamente
+        </button>
+      </div>
+    } @else if (!favorites().length) {
+      <div class="favorites-empty">
+        <span class="favorites-heart"><app-icon name="heart" /></span>
+        <h2>Nenhuma linha favorita ainda</h2>
+        <p>Toque no coração em qualquer linha para salvar e encontrar seus trajetos aqui.</p>
+        <a
+          class="favorite-example"
+          [routerLink]="searchPath"
+          [queryParams]="{ term: '146' }"
+          aria-label="Buscar a linha 146 para adicionar aos favoritos"
+        >
+          <span class="favorite-code">146</span
+          ><span
+            ><strong>CALLAO - Exemplo</strong
+            ><small>Toque em <span class="example-heart">♥</span> para salvar</small></span
+          >
+        </a>
+      </div>
+    } @else {
+      <div class="favorites-list">
+        <div class="favorites-list-heading">
+          <span
+            >{{ favorites().length }}
+            {{ favorites().length === 1 ? 'LINHA SALVA' : 'LINHAS SALVAS' }}</span
+          ><a [routerLink]="searchPath">Adicionar mais</a>
+        </div>
+        @for (line of favorites(); track line.id) {
+          <article class="favorite-row">
+            <button
+              type="button"
+              class="favorite-details"
+              (click)="viewDetails(line)"
+              [attr.aria-label]="'Ver detalhes da linha ' + line.code"
+            >
+              <span class="favorite-code">{{ line.code }}</span
+              ><span class="favorite-description"
+                ><strong>{{ line.name }}</strong
+                ><small>{{ line.origin }} → {{ line.destination }}</small></span
+              >
+            </button>
+            <button
+              type="button"
+              class="favorite-remove"
+              [disabled]="pending() !== null"
+              (click)="removeFavorite(line)"
+              [attr.aria-label]="'Remover linha ' + line.code + ' dos favoritos'"
+            >
+              <app-icon name="heart" />
+            </button>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>

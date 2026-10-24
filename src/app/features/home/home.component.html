@@ -1,0 +1,168 @@
+<div class="home-page">
+  <header class="home-header">
+    <a [routerLink]="profilePath" class="home-avatar" aria-label="Abrir perfil">{{ initials }}</a>
+    <div class="home-user">
+      <h1>Olá{{ firstName ? ', ' + firstName : '' }} <span aria-hidden="true">👋</span></h1>
+      <p><app-icon name="pin" /> São Paulo</p>
+    </div>
+    <app-theme-switcher />
+    <button
+      type="button"
+      class="home-notification"
+      aria-label="Notificações indisponíveis"
+      disabled
+    >
+      <app-icon name="bell" />
+    </button>
+  </header>
+
+  <div class="home-content">
+    @if (isPreview) {
+      <div class="home-preview-notice" role="status">
+        <span>Dados de exemplo • favoritos temporários</span
+        ><a routerLink="/home">Usar dados reais</a>
+      </div>
+    }
+    <form
+      class="surface journey-form"
+      (ngSubmit)="search()"
+      aria-label="Buscar linhas para seu trajeto"
+    >
+      <div class="journey-field">
+        <span class="origin-dot" aria-hidden="true"></span>
+        <label for="home-origin" class="sr-only">Origem</label>
+        <input
+          id="home-origin"
+          name="origin"
+          class="field-input"
+          [(ngModel)]="fromTerm"
+          placeholder="De onde você vai sair?"
+          autocomplete="street-address"
+          enterkeyhint="next"
+        />
+      </div>
+      <button
+        class="gps-button"
+        type="button"
+        (click)="useCurrentLocation()"
+        [disabled]="locating()"
+      >
+        <app-icon name="locate" />{{
+          locating() ? 'Buscando localização…' : 'Usar localização atual'
+        }}
+      </button>
+      <div class="journey-field">
+        <span class="destination-dot"><app-icon name="pin" /></span>
+        <label for="home-destination" class="sr-only">Destino</label>
+        <input
+          id="home-destination"
+          name="destination"
+          class="field-input"
+          [(ngModel)]="toTerm"
+          placeholder="Para onde você vai?"
+          autocomplete="off"
+          enterkeyhint="search"
+        />
+      </div>
+      @if (locationMessage()) {
+        <p role="status" class="location-feedback">{{ locationMessage() }}</p>
+      }
+      <div class="journey-actions">
+        <button type="button" (click)="findStops()"><app-icon name="navigation" /> Paradas</button
+        ><button type="submit"><app-icon name="search" /> Buscar linha</button>
+      </div>
+    </form>
+
+    <section class="quick-section" aria-labelledby="quick-title">
+      <div class="section-heading"><h2 id="quick-title">Acesso rápido</h2></div>
+      <nav class="home-shortcuts" aria-label="Acessos rápidos">
+        <button
+          type="button"
+          class="shortcut shortcut-primary"
+          (click)="loadNearby()"
+          [disabled]="loading()"
+        >
+          <app-icon name="compass" />Linhas próximas
+        </button>
+        <a [routerLink]="favoritesPath" class="shortcut"
+          ><app-icon name="heart" />Favoritos{{
+            favoritesReady() ? ' • ' + favoriteIds().size : ''
+          }}</a
+        >
+        <a [routerLink]="mapPath" class="shortcut shortcut-map"><app-icon name="pin" />Mapa</a>
+      </nav>
+    </section>
+
+    <section class="home-lines" aria-labelledby="home-lines-title" [attr.aria-busy]="loading()">
+      <div class="section-heading lines-heading">
+        <h2 id="home-lines-title">
+          {{ nearby() ? 'Linhas próximas' : 'Linhas disponíveis'
+          }}{{ loading() ? '' : ' • ' + lines().length }}
+        </h2>
+        <label class="line-filter"
+          ><app-icon name="search" /><input
+            aria-label="Filtrar linhas exibidas"
+            placeholder="Filtrar"
+            [ngModel]="filterTerm()"
+            (ngModelChange)="filterTerm.set($event)"
+        /></label>
+      </div>
+      @if (loading()) {
+        <div class="surface status-panel" role="status">
+          <app-icon name="bus" />
+          <p>Buscando linhas…</p>
+        </div>
+      } @else if (error()) {
+        <div class="surface status-panel" role="alert">
+          <p>{{ error() }}</p>
+          <button class="text-link" type="button" (click)="nearby() ? loadNearby() : loadLines()">
+            Tentar novamente
+          </button>
+        </div>
+      } @else if (lines().length === 0) {
+        <div class="surface status-panel" role="status">
+          <p>
+            {{
+              nearby()
+                ? 'Nenhuma linha encontrada próxima a esse endereço.'
+                : 'Nenhuma linha disponível para exibir no momento.'
+            }}
+          </p>
+          <a [routerLink]="searchPath" class="text-link">Explorar busca</a>
+        </div>
+      } @else {
+        <div class="home-line-list">
+          @for (line of visibleLines(); track line.id) {
+            <app-line-card
+              [line]="line"
+              [compact]="true"
+              [favoriteActive]="isFavorite(line)"
+              [favoriteDisabled]="!favoritesReady() || pendingFavorite() !== null"
+              (viewDetails)="viewDetails($event)"
+              (toggleFavorite)="toggleFavorite($event)"
+            />
+          } @empty {
+            <p class="location-feedback" role="status">Nenhuma linha corresponde ao filtro.</p>
+          }
+        </div>
+      }
+      @if (previewEnabled && !isPreview && !loading() && (error() || lines().length === 0)) {
+        <a routerLink="/preview/home" class="button-primary w-full mt-3"
+          >Visualizar com dados de exemplo</a
+        >
+      }
+      @if (favoritesFailed()) {
+        <p class="location-feedback" role="status">
+          Favoritos indisponíveis.
+          <button type="button" class="text-link" (click)="loadFavorites()">
+            Tentar novamente
+          </button>
+        </p>
+      }
+    </section>
+    <footer class="home-footer">
+      <a [routerLink]="searchPath">Ver todas as linhas <span aria-hidden="true">›</span></a
+      ><a [routerLink]="mapPath"><app-icon name="compass" />Mapa</a>
+    </footer>
+  </div>
+</div>

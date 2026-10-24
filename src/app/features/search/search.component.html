@@ -1,157 +1,167 @@
-<div class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-  <div
-    class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700"
-  >
-    <h2 class="text-xl font-bold mb-4">Para onde vamos hoje?</h2>
-
-    <div class="space-y-3">
-      <!-- Campo De Onde -->
-      <div class="relative">
-        <svg
-          class="absolute left-4 top-1/2 -translate-y-1/2 text-green-500"
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <circle cx="12" cy="12" r="3" />
-          <path d="M12 2v3m0 14v3M2 12h3m14 0h3" />
-        </svg>
+<section class="search-page" aria-labelledby="search-title">
+  <header class="search-header">
+    <div class="search-heading">
+      <h1 id="search-title">Buscar linhas</h1>
+      <app-theme-switcher />
+    </div>
+    @if (isPreview) {
+      <div class="preview-notice" role="status">
+        <span>Dados de exemplo • favoritos temporários</span
+        ><a routerLink="/search">Usar dados reais</a>
+      </div>
+    }
+    <div class="search-input-wrap" role="search">
+      <app-icon name="search" />
+      <label for="line-search" class="sr-only">Buscar por código, nome, origem ou destino</label>
+      <input
+        id="line-search"
+        type="search"
+        [ngModel]="query()"
+        (ngModelChange)="onQueryChange($event)"
+        placeholder="Código, nome, origem, destino..."
+        autocomplete="off"
+        enterkeyhint="search"
+      />
+    </div>
+    <nav class="search-chips" aria-label="Filtros da busca">
+      <button
+        type="button"
+        [class.is-selected]="direction() === 0"
+        [attr.aria-pressed]="direction() === 0"
+        (click)="direction.set(0)"
+      >
+        Todas
+      </button>
+      <button
+        type="button"
+        [class.is-selected]="direction() === 1"
+        [attr.aria-pressed]="direction() === 1"
+        [disabled]="!hasDirectionData()"
+        [title]="
+          hasDirectionData()
+            ? 'Mostrar linhas de ida'
+            : 'Sentido não informado nas linhas retornadas'
+        "
+        (click)="direction.set(1)"
+      >
+        Ida
+      </button>
+      <button
+        type="button"
+        [class.is-selected]="direction() === 2"
+        [attr.aria-pressed]="direction() === 2"
+        [disabled]="!hasDirectionData()"
+        [title]="
+          hasDirectionData()
+            ? 'Mostrar linhas de volta'
+            : 'Sentido não informado nas linhas retornadas'
+        "
+        (click)="direction.set(2)"
+      >
+        Volta
+      </button>
+      <button
+        type="button"
+        class="filters-toggle"
+        [class.is-selected]="filtersOpen()"
+        [attr.aria-expanded]="filtersOpen()"
+        aria-controls="search-filters"
+        (click)="filtersOpen.set(!filtersOpen())"
+      >
+        <app-icon name="filter" />Filtros
+      </button>
+    </nav>
+    @if (filtersOpen()) {
+      <div id="search-filters" class="search-filters">
+        @if (previewEnabled && !isPreview) {
+          <a routerLink="/preview/search" class="preview-link">Visualizar dados de exemplo</a>
+        }
+        <label for="search-origin">Origem</label>
         <input
-          type="text"
+          id="search-origin"
           [(ngModel)]="fromTerm"
           (input)="onFromInput()"
           (blur)="onFromBlur()"
-          placeholder="De onde?"
-          class="w-full pl-12 pr-12 py-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+          placeholder="De onde você vai sair?"
+          autocomplete="street-address"
         />
-        <button
-          (click)="useCurrentLocation()"
-          [disabled]="isLocating()"
-          class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-500 hover:text-blue-700 transition-colors disabled:opacity-50 cursor-pointer"
-          title="Usar minha localização"
-        >
-          <svg
-            *ngIf="!isLocating()"
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z" />
-            <circle cx="12" cy="9" r="2.5" />
-          </svg>
-          <svg
-            *ngIf="isLocating()"
-            class="animate-spin"
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-          </svg>
-        </button>
-      </div>
-
-      <!-- Divisor -->
-      <div class="flex items-center gap-3 px-2">
-        <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
-        <svg
-          class="text-slate-400"
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M12 5v14M5 12l7 7 7-7" />
-        </svg>
-        <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
-      </div>
-
-      <!-- Campo Para Onde -->
-      <div class="relative">
-        <svg
-          class="absolute left-4 top-1/2 -translate-y-1/2 text-red-500"
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z" />
-          <circle cx="12" cy="9" r="2.5" />
-        </svg>
+        <label for="search-destination">Destino</label>
         <input
-          type="text"
+          id="search-destination"
           [(ngModel)]="toTerm"
           (input)="onToInput()"
-          placeholder="Para onde?"
-          class="w-full pl-12 pr-4 py-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+          (blur)="onToBlur()"
+          placeholder="Para onde você vai?"
         />
-      </div>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <ng-container *ngIf="isLoading()">
-      <div
-        *ngFor="let i of [1, 2, 3, 4]"
-        class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 animate-pulse"
-      >
-        <div class="flex justify-between mb-4">
-          <div class="h-8 w-16 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
-          <div class="h-8 w-8 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
-        </div>
-        <div class="h-5 w-3/4 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
-        <div class="h-4 w-1/2 bg-slate-200 dark:bg-slate-700 rounded"></div>
-      </div>
-    </ng-container>
-
-    <ng-container *ngIf="!isLoading()">
-      <app-line-card
-        *ngFor="let line of filteredLines()"
-        [line]="line"
-        (viewDetails)="viewDetails($event)"
-        (toggleFavorite)="toggleFavorite($event)"
-      >
-      </app-line-card>
-
-      <div *ngIf="filteredLines().length === 0" class="col-span-full py-12 text-center">
-        <div
-          class="bg-slate-100 dark:bg-slate-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+        <button
+          type="button"
+          class="search-location"
+          (click)="useCurrentLocation()"
+          [disabled]="isLocating()"
         >
-          <svg
-            class="text-slate-400"
-            xmlns="http://www.w3.org/2000/svg"
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
-        </div>
-        <h3 class="text-lg font-semibold">Nenhuma linha encontrada</h3>
-        <p class="text-slate-500">Tente buscar por outro código ou nome.</p>
+          <app-icon name="locate" />{{
+            isLocating() ? 'Buscando localização…' : 'Usar localização atual'
+          }}
+        </button>
+        <label class="favorites-filter"
+          ><input
+            type="checkbox"
+            [ngModel]="onlyFavorites()"
+            (ngModelChange)="onlyFavorites.set($event)"
+            [disabled]="!favoritesReady()"
+          />Somente favoritos</label
+        >
       </div>
-    </ng-container>
+    }
+  </header>
+
+  <div class="search-results" aria-label="Resultados da busca" [attr.aria-busy]="isLoading()">
+    @if (isLoading()) {
+      <span class="sr-only" role="status">Buscando linhas…</span>
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="search-card-skeleton" aria-hidden="true">
+          <span class="skeleton-code"></span><span class="skeleton-text"><i></i><i></i></span
+          ><span class="skeleton-favorite"></span>
+        </div>
+      }
+    } @else if (searchError()) {
+      <div class="search-empty" role="alert">
+        <p>{{ searchError() }}</p>
+        <button type="button" (click)="loadLines()">Tentar novamente</button>
+      </div>
+    } @else {
+      @if (favoritesFailed()) {
+        <p class="search-feedback" role="status">
+          Favoritos indisponíveis.
+          <button type="button" (click)="loadFavorites()">Tentar novamente</button>
+        </p>
+      }
+      @for (line of filteredLines(); track line.id) {
+        <app-line-card
+          [line]="line"
+          [compact]="true"
+          [favoriteActive]="!!line.isFavorite"
+          [favoriteDisabled]="!favoritesReady() || pendingFavorite() !== null"
+          (viewDetails)="viewDetails($event)"
+          (toggleFavorite)="toggleFavorite($event)"
+        />
+      } @empty {
+        <div class="search-empty" role="status">
+          <app-icon name="search" />
+          <h2>Nenhuma linha encontrada</h2>
+          <p>Tente outro código, nome, origem ou destino, ou ajuste os filtros.</p>
+        </div>
+      }
+    }
+    @if (
+      previewEnabled &&
+      !isPreview &&
+      !isLoading() &&
+      (searchError() || filteredLines().length === 0)
+    ) {
+      <a routerLink="/preview/search" class="button-primary w-full"
+        >Visualizar com dados de exemplo</a
+      >
+    }
   </div>
-</div>
+</section>

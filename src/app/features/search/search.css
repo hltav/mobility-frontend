@@ -1,0 +1,214 @@
+:host {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+.search-page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  max-width: 48rem;
+  margin-inline: auto;
+}
+.search-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: max(24px, env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) 16px
+    max(20px, env(safe-area-inset-left, 0px));
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+}
+.search-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.search-heading h1 {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--text-muted);
+}
+.search-input-wrap app-icon {
+  width: 16px;
+  height: 16px;
+}
+.search-input-wrap input {
+  width: 100%;
+  min-height: 44px;
+  background: transparent;
+  color: var(--text-main);
+  font-size: 14px;
+}
+.search-input-wrap input::placeholder {
+  color: var(--text-muted);
+}
+.search-input-wrap:focus-within {
+  border-color: var(--primary);
+}
+.search-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.search-chips button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.search-chips .is-selected {
+  color: var(--bg-main);
+  background: var(--text-main);
+  border-color: var(--text-main);
+}
+.search-chips button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.search-chips app-icon {
+  width: 13px;
+  height: 13px;
+}
+.search-filters {
+  display: grid;
+  gap: 8px;
+  padding-top: 16px;
+}
+.search-filters > label {
+  font-size: 12px;
+  font-weight: 600;
+}
+.search-filters > input {
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-input);
+  font-size: 14px;
+}
+.search-location,
+.favorites-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  font-size: 12px;
+}
+.search-location {
+  color: var(--primary);
+}
+.search-location app-icon {
+  width: 14px;
+  height: 14px;
+}
+.favorites-filter input {
+  accent-color: var(--primary);
+}
+.search-results {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 6px;
+  padding: 16px max(20px, env(safe-area-inset-right, 0px)) 20px
+    max(20px, env(safe-area-inset-left, 0px));
+}
+.search-card-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-card);
+}
+.skeleton-code {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: var(--border);
+}
+.skeleton-text {
+  display: grid;
+  gap: 6px;
+  flex: 1;
+}
+.skeleton-text i {
+  display: block;
+  width: 55%;
+  height: 10px;
+  background: var(--border);
+  border-radius: 4px;
+}
+.skeleton-text i:last-child {
+  width: 80%;
+  height: 8px;
+}
+.skeleton-favorite {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: var(--border);
+}
+.search-empty {
+  padding: 32px 12px;
+  color: var(--text-muted);
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.search-empty h2 {
+  color: var(--text-main);
+  font-weight: 700;
+  margin: 12px 0 4px;
+}
+.search-empty button,
+.search-feedback button {
+  color: var(--primary);
+  min-height: 32px;
+}
+.search-feedback {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.preview-notice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: -4px 0 12px;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.preview-notice a,
+.preview-link {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.preview-link {
+  font-size: 12px;
+}
