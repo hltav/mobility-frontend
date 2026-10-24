@@ -1,90 +1,110 @@
-# Fluxo Git e publicação inicial
+# Fluxo Git e governança do GitHub
 
-## Estado observado
+## Estado confirmado e limites
 
-Em 24/10/2026: branch local `master`, HEAD `af4a148ed012f0085fe8acb58f0d1e8dfe2b74ee`, tracking `origin/master`; `origin/HEAD` aponta para `origin/master`. Remote fetch/push: `git@github.com:hltav/mobility-frontend.git`. Não houve fetch: referências remotas locais podem estar desatualizadas. Só `master` existe nas referências inspecionadas. Proteções, permissões, checks e integração Linear não foram verificados no GitHub.
+Em 24/10/2026, a publicação excepcional OPE-34 e a criação de `develop` foram concluídas. `master` e `develop` partiram do SHA `39bcec9277499804b9134d6199a8b10c9e9acba8`. A exceção de push direto em master está encerrada.
 
-## Política Git definida para o frontend
+A etapa OPE-25 prepara Husky, CI, política de PR e Rulesets. Repositório oficial: `hltav/mobility-frontend`, público e de proprietário pessoal (`hltav`, tipo User). A consulta de leitura à API `/repos/hltav/mobility-frontend/rulesets` retornou `[]`. As consultas de leitura aos endpoints branches/master e branches/develop retornaram protected=false e enforcement de checks off. O plano pago da conta não foi confirmado. O conector consultado tem leitura, sem administração.
 
-A política abaixo define o fluxo de trabalho adotado para as próximas entregas. A existência das branches, dos checks e das proteções é estado operacional separado: sua configuração ainda está pendente e não foi realizada nesta consolidação.
+| Estado                         | Configuração                                                              |
+| ------------------------------ | ------------------------------------------------------------------------- |
+| Implementado localmente        | Hooks e verificações de governança; workflows preparados na branch OPE-25 |
+| Publicado previamente          | master/develop no SHA consolidado OPE-34                                  |
+| Preparado para aprovação       | JSONs de Protect develop e Protect master com enforcement disabled        |
+| Ainda não comprovado no GitHub | Execução dos novos checks e bloqueio efetivo de merges                    |
+| Não ativado nesta etapa        | Rulesets, bypass e restrição adicional de atores                          |
 
-| Branch                     | Finalidade e destino                                                                                           |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `master`                   | Branch estável; protegida após publicação inicial; releases de develop por PR; sem push direto no fluxo futuro |
-| `develop`                  | Branch de integração, base de novos trabalhos e destino padrão dos PRs de funcionalidades                      |
-| `feature/OPE-XX-descricao` | Funcionalidade de card real; PR obrigatoriamente para develop                                                  |
-| `fix/OPE-XX-descricao`     | Correção de card real; PR para develop                                                                         |
-| `docs/OPE-XX-descricao`    | Documentação de card real; PR para develop                                                                     |
+## Branches e rastreabilidade
 
-## Conventional Commits
+| Branch                            | Uso e destino                                                    |
+| --------------------------------- | ---------------------------------------------------------------- |
+| `master`                          | Estável; recebe exclusivamente release do próprio develop por PR |
+| `develop`                         | Integração e base de novos trabalhos; recebe PRs por card        |
+| `feature/OPE-<número>-descricao`  | Funcionalidade → develop                                         |
+| `fix/OPE-<número>-descricao`      | Correção → develop                                               |
+| `docs/OPE-<número>-descricao`     | Documentação → develop                                           |
+| `refactor/OPE-<número>-descricao` | Refatoração → develop                                            |
+| `test/OPE-<número>-descricao`     | Testes → develop                                                 |
+| `chore/OPE-<número>-descricao`    | Manutenção/CI → develop                                          |
 
-O identificador deve corresponder a um card real da equipe OPE no [Linear Open Transit](https://linear.app/open-transit). `XX` é somente placeholder documental, nunca um ID para commit real.
+Descrições de branch usam letras minúsculas ASCII, números e hífens. Outros padrões de manutenção precisam de aprovação e atualização da política antes do uso. A branch desta entrega é `feature/OPE-25-governanca-ci-protecao-branches`, card real informado pelo mantenedor. Não usar esse card para trabalhos independentes.
 
-```text
-feat(OPE-XX): implementa nova tela de paradas
-fix(OPE-XX): corrige tratamento de sessão expirada
-docs(OPE-XX): atualiza documentação PWA
-test(OPE-XX): adiciona testes da autenticação
-refactor(OPE-XX): reorganiza componentes compartilhados
-```
+Commits: `tipo(OPE-<número>): descrição`, com `!` opcional antes de `:`. Tipos aceitos: feat, fix, docs, style, refactor, perf, test, build, ci, chore e revert. Exemplo do escopo aprovado: `ci(OPE-25): configura validação de PRs e CI Angular`. Placeholders não são IDs reais.
 
-Tipos adicionais seguem o mesmo vínculo de card real e escopo aprovado. Releases envolvendo vários cards devem listá-los na descrição; não inventar card agregador. A cadeia de rastreabilidade card→branch→commit→PR→release está no [fluxo Linear](linear-workflow.md).
+A política exige card numérico no título ou corpo do PR, fora de comentários HTML; para develop, ele deve corresponder ao card da branch. Releases precisam listar os cards reais incluídos. Hooks e CI validam sintaxe e correspondência, não existência do card ou aceite no Linear. Confira isso na revisão, sem credenciais Linear no CI. Veja [rastreabilidade](linear-workflow.md).
 
-## Revisão, checks e autorização
+## Hooks locais
 
-PR deve usar o [template](../.github/PULL_REQUEST_TEMPLATE.md), evidências técnicas/visuais, testes e resultado do build. Todo PR de feature tem develop como destino. Merge depende dos checks definidos para o repositório e da autorização do mantenedor responsável; checks verdes não substituem essa autorização. Após ajustes, revalidar o impacto antes de aprovar.
+Husky 9.1.7 é instalado por `npm ci`; `prepare` configura `.husky/_` como hooksPath. Antes de instalar, confira hooksPath e hooks existentes; não sobrescreva hooks pessoais/ativos sem combinar sua composição. Nesta configuração inicial só havia hooks de exemplo, preservados.
 
-Não presumir que GitHub permita ao autor aprovar formalmente seu próprio PR. Quando revisão formal for exigida, obter aprovação de revisor elegível distinto do autor. Se não houver revisor elegível, o mantenedor precisa definir uma política de proteção compatível e registrar sua autorização; não simular autoaprovação, contornar checks ou declarar requisito formal atendido sem evidência.
+- pre-commit: `npm run lint:staged`; verifica whitespace e sintaxe/formatação Prettier dos blobs staged reconhecidos, mais ESLint em src TS/HTML (inclui templates inline), sem modificar arquivos ou staging. O hook reprova erros ESLint; o teto global de avisos é verificado pelo lint completo no CI. Arquivos sem parser ainda passam por whitespace.
+- commit-msg: valida a primeira linha em Conventional Commits com OPE numérico. Confirme a existência e o escopo real do card antes do commit.
+- Build e suíte Angular ficam fora do pre-commit. Hooks não substituem CI e podem ser desativados pelo cliente; CI usa `HUSKY=0` porque não cria commits.
 
-Preferência proposta: squash por card com mensagem convencional; releases develop→master devem preservar rastreabilidade. A estratégia de merge e os nomes dos checks dependem da configuração real, ainda não verificada. Agentes não executam commit, push, abertura de PR ou merge automaticamente.
+Lint configurado em eslint.config.mjs: ESLint 10.13.0, TypeScript ESLint 8.72.0 e Angular ESLint 21.4.0. Regras recomendadas de JS/TS/Angular/templates e acessibilidade, sem regras de reformatação ESLint. Não usa análise de tipos por projeto. A comparação intencional `== null`/`!= null` é permitida nos templates. Argumentos prefixados por \_ podem ser ignorados. Os 13 avisos legados de tipos/padrões ficam visíveis em arquivos específicos; `npm run lint` usa --max-warnings=13. Não subir o teto nem ampliar exceções para novos problemas. A contagem global limita crescimento, mas não substitui revisão de mudanças no mesmo arquivo. Ao corrigir formatação de arquivo parcialmente staged, preserve trechos locais e revise antes de adicionar. Não executar formatadores com escrita global, `git add .` ou `git add -A`.
 
-Depois da entrega inicial expressamente autorizada, **proibido push direto em master**. Não presumir que essa política documental já esteja tecnicamente protegida.
+O whitespace histórico da licença `public/fonts/OFL.txt:21` foi aceito somente na OPE-34, preservando seus bytes. Essa decisão não desativa verificações nem autoriza novas exceções.
 
-## Checklist da publicação excepcional inicial em master
+## Checks preparados
 
-Esta seção é plano, não autorização nem comandos executados. A auditoria não criou commits, branches, PRs, push ou proteções. O inventário está no [relatório](audits/2026-10-24-frontend-audit.md).
+| Workflow / job (nome do check proposto) | Validação                                                                |
+| --------------------------------------- | ------------------------------------------------------------------------ |
+| PR policy / `PR policy`                 | Metadados: origem/destino/card; sem checkout e sem executar código do PR |
+| Angular CI / `Install`                  | npm ci e testes de governança                                            |
+| Angular CI / `Build`                    | npm ci e npm run build                                                   |
+| Angular CI / `Angular tests`            | npm ci e npm run ng -- test --watch=false                                |
+| Angular CI / `Security`                 | npm ci e npm audit --omit=dev --audit-level=high                         |
+| Angular CI / `Lint`                     | npm ci e npm run lint; erros ou mais de 13 avisos reprovam               |
 
-- [ ] Revisar inventário integral, incluindo não rastreados, com o responsável; aprovar escopo adicional aos lotes, revisar o isolamento de preview exclusivo de desenvolvimento e decidir sobre o layout mobile-only.
-- [ ] Fechar aceite HTTP real e PWA instalada ou aprovar expressamente limites e riscos. Build/unidade não são E2E. Decidir correção do Vitest alternativo e avisos sem afrouxar budgets.
-- [ ] Revisar segredos, arquivos grandes, artefatos, licenças e dados de capturas no conteúdo exato a publicar.
-- [ ] Propor commits por assunto e card real, com seleção de arquivos/trechos; não usar `git add .` sobre trabalho de terceiros.
-- [ ] Revalidar a combinação selecionada em ambiente isolado. Os 97 testes e o build registrados na auditoria não validam automaticamente um subconjunto diferente de alterações.
-- [ ] Apresentar conteúdo, commits propostos, evidências e rollback para revisão; obter autorização explícita para commit e publicação excepcional em master.
-- [ ] Somente na etapa autorizada, atualizar referências remotas, conferir divergências e permissão da exceção, revisar staging e publicar o conteúdo aprovado. Sem force push ou sobrescrita de trabalho remoto.
+CI técnico usa pull_request para develop/master, código sem credenciais persistidas, token contents:read, actions fixadas por SHA e Node 22.22.0. O check Security é bloqueante e não usa continue-on-error; a consulta inicial encontrou 6 entradas altas e 2 moderadas nas dependências de produção. A correção autorizada de Angular/compiler-cli para 21.2.25 e Zod para 4.6.7 zerou o audit de produção, com instalação limpa, build, suíte e lint validados. Não foi executado npm audit fix. O audit não abrange devDependencies nem substitui revisão de segredos. npm ci é repetido por job para manter instalações isoladas. Falhas não são convertidas em sucesso; dependências impedem executar jobs técnicos se Install falhar. Não há filtro paths, inclusive em PRs somente de documentação. O job Lint executa npm run lint diretamente, sem caminho de sucesso pela ausência do script.
 
-Nenhum item é marcado como concluído por esta consolidação. Comandos remotos, staging, commits e branches não foram executados nesta etapa.
+A política usa pull_request_target com eventos opened/synchronize/reopened/edited/ready_for_review, inclusive mudança de destino e descrição. Lê somente payload; não faz checkout, não usa secrets nem altera/fecha PRs. A proteção precisa exigir esse check para que uma reprovação impeça merge. Uma atualização da política requer revisão do mantenedor; testes locais não comprovam execução no GitHub.
 
-### Agrupamento sugerido de commits
+## Revisão e merge
 
-| Grupo                         | Conteúdo e dependências                                                                                         |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Contratos e compatibilidade   | Mappers/schemas/serviços de linhas, favoritos e posições já modificados antes dos lotes; testes correspondentes |
-| Fundação visual               | Fonte/licença, tokens, tema, shell, ícones e componentes compartilhados, Home/navegação e testes                |
-| Entrada e autenticação        | Onboarding, AuthLayout, formulários, guards, interceptor, AuthService e testes                                  |
-| PWA                           | Pacote/lock/config, manifest/ícones, status/serviço PWA, preview server e testes                                |
-| Telas adicionais              | Busca/detalhes/favoritos, mapa/paradas/perfil, testes e CSS; confirmar escopo e fixtures separadamente          |
-| Governança/evidências         | Documentos desta auditoria, relatórios históricos, template e evidências aprovadas                              |
-| Preferências locais opcionais | `.vscode/settings.json` e dicionário cspell somente se forem deliberadamente política de equipe                 |
+PRs por card vão para develop, usando o [template](../.github/PULL_REQUEST_TEMPLATE.md). Master aceita exclusivamente develop do mesmo repositório; branch develop de fork é rejeitada. PR inválido falha por status, sem fechamento ou redirecionamento automático.
 
-Arquivos como rotas, shell, styles, icons e serviços abrangem vários grupos; separar por trechos coerentes e respeitar dependências, sem prometer que cada grupo atual compila sozinho. Não reescrever mudanças de terceiros para forçar o agrupamento.
+Merge depende dos checks e da autorização explícita do mantenedor, registrada no PR. Autor não pode aprovar formalmente o próprio PR. A proposta usa zero aprovações formais obrigatórias, sem exigir code owner ou aprovação do último push, para o único mantenedor conseguir integrar PRs com checks verdes e conversas resolvidas. Isso não equivale a revisão independente: adote um revisor elegível quando a equipe permitir. Squash por card é preferência; releases devem preservar a ancestralidade de develop, preferindo merge commit e listando cards.
 
-### O que versionar
+Como a proposta exige base atualizada, depois de cada release planeje uma sincronização de master em develop por PR de manutenção com card real (branch chore por card, baseada em develop, incorporando a release sob autorização). Não use push direto, PR master→develop fora da política ou botão Update branch que tente gravar diretamente na develop protegida. Essa sincronização não foi executada nesta etapa.
 
-- Código/configuração funcional aprovado, testes relacionados, package/lock juntos, manifest/ngsw, fonte/OFL e ícones usados; scripts apenas se revisados e documentados.
-- Governança desta execução e relatórios históricos. Selecionar capturas/JSON úteis e sanitizados; screenshots com `mock`/prévia não são evidência de API real.
-- `.gitignore` contém exclusão de `.migration-baselines/`, necessária para preservar snapshots fora da publicação. Baselines, perfis CDP/XDG, tooling temporário, dist, node_modules, cache, coverage, logs, segredos e `.env*` locais não devem ser adicionados. A regra atual ignora apenas `.env` exato: conferir variantes antes de staging.
-- CSS/templates antigos e scripts CDP não devem ser apagados nesta consolidação; decidir sua manutenção em revisão funcional. Não publicar snapshots para demonstrar preservação.
+Agentes só fazem commit/push/PR/merge mediante autorização específica. Nesta entrega não há commit, push ou PR autorizado. Sem push direto em master/develop, force push, rebase/merge incidental ou alteração de proteção.
 
-## Checklist posterior: develop, CI, proteções e releases
+## Rulesets propostos para aprovação
 
-- [ ] Confirmar SHA de master efetivamente publicado e criar develop exatamente a partir dele, com autorização; não partir da árvore local suja.
-- [ ] Configurar e validar checks de CI para build/testes em tarefa própria; definir nomes dos checks a partir de execuções reais. Não há workflow de CI na árvore inspecionada.
-- [ ] Proteger master: releases por PR, checks definidos, revisão conforme política, autorização do mantenedor, conversas resolvidas, bloqueio de force push/exclusão e bypass restrito.
-- [ ] Proteger develop de forma apropriada: PRs de entrega, checks e revisão conforme política compatível com os revisores disponíveis; registrar responsáveis/exceções.
-- [ ] Padronizar novos trabalhos a partir de develop e branches feature/fix/docs por card OPE real. Todo PR de feature deve apontar para develop.
-- [ ] Publicar releases de develop para master por PR, mediante checks e autorização do mantenedor; registrar cards incluídos e rollback.
-- [ ] Conferir acesso, estados e eventual integração automática no workspace oficial informado, sem modificar cards nesta consolidação. Gestão do workspace fica com o responsável do projeto.
+Arquivos: [Protect develop](../.github/rulesets/protect-develop.json) e [Protect master](../.github/rulesets/protect-master.json). São propostas importáveis, com `enforcement: disabled`; não enviadas à API. Targets literais refs/heads/develop e refs/heads/master. Exigem PR, conversas resolvidas, os seis checks e atualização da base; bloqueiam exclusão e force push. Lista de bypass vazia e aprovações formais zero.
 
-Caso se escolha mudar a branch padrão de colaboração no GitHub, registrar essa decisão e configurá-la em etapa autorizada; base develop para novos trabalhos já é a política documental. Nenhuma proteção é considerada ativa apenas pela existência deste checklist.
+Não ativar Restrict updates nesses dois Rulesets: sem bypass, impediria atualizações inclusive por merge do único mantenedor. Require a pull request limita push direto sem exigir esse bloqueio. Não habilitar bypass genérico de administradores: ele permite contornar as regras do Ruleset e reduz as garantias de checks/PR. O proprietário ainda pode editar/desativar regras com administração; isso é poder administrativo, não evidência de conformidade.
 
-Rollback da publicação deve preservar histórico, preferindo revert revisado e novo build coerente. Para PWA, servir conjunto completo da versão escolhida e validar atualização dos clientes; reverter código não garante remoção instantânea de workers instalados. Qualquer ação remota depende de autorização.
+Os contextos de checks e integration_id 15368 (GitHub Actions) são candidatos, não observações de execução neste repositório. Antes da ativação, conferir os nomes e app_id efetivos nas check-runs e ajustar os JSONs se necessário.
+
+### Restrição de merge por ator e plano
+
+[Rulesets de branch](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets) estão disponíveis para repositórios públicos inclusive no GitHub Free; não é necessário presumir plano pago para este repositório público. Push rulesets têm outra disponibilidade e finalidade, e não são os arquivos propostos aqui.
+
+A opção clássica Restrict who can push to matching branches, que também limita merges, é documentada para [repositórios de organizações](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule). Este repositório pertence a conta pessoal; não apresentar essa opção como disponível. Em Rulesets, Restrict updates exige bypass para atualizações e não é um seletor independente de quem pode aprovar/realizar merge. Se houver colaboradores com escrita, a exigência documental de autorização do mantenedor não equivale a um bloqueio técnico por ator. Rever permissões/repositório de organização em etapa própria, sem adotar bypass amplo para simular a restrição.
+
+Fontes: [regras disponíveis](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets) e [limite de aprovação pelo autor](https://docs.github.com/en/pull-requests/how-tos/review-pull-requests/reviewing-proposed-changes-in-a-pull-request).
+
+## Checklist de ativação segura
+
+1. Revisar o diff OPE-25 e os 23 arquivos retidos; autorizar separadamente commit seletivo, push da feature e PR para develop. Não adicionar preferências locais ou screenshots retidos.
+2. Executar os testes de governança, instalação limpa, build, suíte Angular e audit de produção; confirmar que o audit continua sem alertas altos/críticos antes de habilitar Security obrigatório. O bloqueio inicial foi corrigido localmente; ainda falta validação no GitHub. Não usar Vitest direto como substituto; a falha conhecida de setup continua pendente.
+3. Publicar a feature e abrir PR para develop somente quando autorizado. CI técnico roda a partir do workflow do PR. A política pull_request_target requer workflow presente na branch padrão; como master ainda não contém esse workflow, não prometer seu check nesta primeira entrega.
+4. Para a introdução inicial da governança, revisar manualmente origem/destino/card e os resultados técnicos, obter autorização e integrar por PR em develop. Preparar depois release develop→master também por PR, com revisão manual da política se o check ainda não existir. Essas operações não estão executadas nem autorizadas por este documento. Não ativar checks inexistentes para forçar essa transição.
+5. Após os workflows chegarem à master, validar em PRs controlados os cenários abaixo, incluindo PR só documental, mudança de destino e ausência de card. Registrar URLs das execuções e contextos/app_id reais. Remover condições inválidas somente por ajuste explícito do PR; não fechar/alterar automaticamente.
+6. Com checks aprovados observados no GitHub, revisar/importar os dois JSONs como Disabled em Settings → Rules → Rulesets, sem bypass. Conferir também proteções clássicas, permissões Actions e restrições adicionais que se acumulam.
+7. Mediante autorização de ativação, selecionar os checks confirmados, conferir PR/conversas/zero aprovações e mudar enforcement para Active em ambos. Validar que o mantenedor pode fazer merge por PR sem autoaprovação formal, que push direto/force push/exclusão são bloqueados e que build/teste reprovados impedem merge. Não testar force push ou exclusão nas branches oficiais.
+8. Registrar evidências e configuração efetiva. Alterar a branch padrão de colaboração ou integrar Linear são decisões separadas. Só marcar como ativo o que foi confirmado no GitHub.
+
+| Cenário                                                                | Resultado da política preparado                         |
+| ---------------------------------------------------------------------- | ------------------------------------------------------- |
+| feature/fix/docs/refactor/test/chore com card correspondente → develop | Permitido                                               |
+| feature/fix/docs → master                                              | Rejeitado com orientação para develop                   |
+| develop do próprio repositório → master com card                       | Permitido                                               |
+| develop de fork → master                                               | Rejeitado                                               |
+| PR sem card, placeholder ou card divergente da branch                  | Rejeitado                                               |
+| Destino diferente de master/develop                                    | Rejeitado                                               |
+| Build/teste falha                                                      | Check falha; bloqueia merge somente após proteção ativa |
+
+Rollback da governança deve ocorrer por PR revisado, mantendo proteções funcionais e histórico. Não apagar hooks de terceiros. Para publicação da aplicação/PWA, servir versão coerente e considerar clientes com worker antigo; consulte [PWA](pwa.md).

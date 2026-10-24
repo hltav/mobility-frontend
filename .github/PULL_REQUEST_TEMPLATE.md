@@ -1,6 +1,8 @@
+<!-- Escolha develop como destino padrão. Master aceita somente release de develop do próprio repositório. -->
+
 ## Card Linear
 
-- Identificador real da equipe OPE:
+- Identificador real da equipe OPE (obrigatório fora de comentário HTML; igual ao card da branch para develop):
 - Link completo do card no workspace [Open Transit](https://linear.app/open-transit):
 - Classificação e escopo aprovado:
 - Destino: `develop` para funcionalidade/correção/documentação; `master` somente para release aprovada de develop.
@@ -67,7 +69,8 @@
 - [ ] Sessão, dados sensíveis, HTTP/Zod e PWA avaliados quando afetados.
 - [ ] Documentação, contratos e changelog atualizados conforme impacto.
 - [ ] Sem segredos, baselines, perfis pessoais ou artefatos indevidos.
-- [ ] Checks definidos para o repositório atendidos antes do merge.
+- [ ] PR policy, Install, Build, Angular tests, Lint e Security conferidos nas execuções reais; avisos legados de lint e resultado do audit declarados, sem ocultar falhas.
+- [ ] Regras de destino/card satisfeitas; proteção e checks obrigatórios confirmados, sem confundir configuração preparada com ativa.
 - [ ] Autorização do mantenedor responsável registrada e revisão formal atendida quando exigida; não presumir autoaprovação formal pelo autor.
 - [ ] Rastreabilidade Linear conferida; Done somente após integração e aceite, pela gestão responsável.
 - [ ] Rollback descrito ou não aplicabilidade justificada.

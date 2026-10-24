@@ -15,7 +15,7 @@
 - Implementação altera comportamento somente no escopo aprovado e preserva funcionalidades reais e contratos existentes.
 - Auditoria inspeciona e valida; documentar um problema não autoriza corrigi-lo fora do escopo.
 - Documentação consolida fatos e políticas; não altera código, textos da aplicação, assets ou contratos para fazê-los coincidir com o documento.
-- Publicação é etapa separada: prepare conteúdo, evidências e riscos para revisão. Não faça commits, push, abertura/merge de PR, proteção ou alteração de branch automaticamente. Execute apenas operações explicitamente autorizadas; nesta consolidação, nenhuma delas está autorizada.
+- Publicação é etapa separada: prepare conteúdo, evidências e riscos para revisão. Não faça commits, push, abertura/merge de PR, proteção ou alteração de branch automaticamente. Execute apenas operações explicitamente autorizadas; implementação de governança não autoriza publicação ou ativação de proteção.
 
 ## Arquitetura e Angular
 
@@ -52,3 +52,14 @@
 - Não afrouxe budgets ou asserts para ocultar falhas. Separe warnings e problemas preexistentes de regressões. Revise segredos por padrões sem imprimir valores, artefatos, licenças e arquivos grandes.
 - Siga [Git](docs/git-workflow.md): card real confirmado, Conventional Commits, PR para `develop`, release para `master`. Após a exceção inicial autorizada, sem push direto em master. Não use `git add .` em árvore com trabalho de terceiros.
 - Todo PR de feature tem `develop` como destino. Merge depende dos checks definidos e da autorização do mantenedor responsável; não presuma aprovação formal do próprio PR pelo autor. Confira acesso e estados reais da equipe OPE antes de qualquer transição autorizada; não presuma integração GitHub–Linear. Entregue evidências para revisão e mantenha pendências explícitas.
+
+## Governança OPE-25
+
+- Master/develop foram publicadas na OPE-34. Novos trabalhos partem de develop em branch por card real. Aceite feature/fix/docs/refactor/test/chore; os demais padrões exigem revisão da política.
+- Leia o [fluxo Git](docs/git-workflow.md) antes de alterar hooks, workflows ou proteções. Preserve os 23 arquivos locais retidos e qualquer hook existente. Não use `git add .` nem `git add -A`.
+- Instale com npm ci. Pre-commit lê apenas staging e não escreve; commit-msg valida Conventional Commits com OPE numérico. Não invente card nem alegue que regex comprova sua existência.
+- Mudanças de governança exigem npm run test:governance e npm run lint; CI/build/testes Angular devem ser validados quando seus comandos/dependências forem afetados. Não corrija Vitest direto incidentalmente nem o apresente como aprovado.
+- PRs vão para develop; somente develop do próprio repositório vai para master. Política inválida reprova por check, sem fechar/alterar PR. Mantenha token mínimo, política por metadados sem checkout de head em pull_request_target e ausência de filtros paths em checks obrigatórios.
+- Rulesets JSON estão Disabled para aprovação, com zero aprovações formais e bypass vazio. Não ativar antes de os checks existirem e passarem no GitHub. Autor não aprova formalmente o próprio PR; mantenedor registra autorização. Não afirmar que checks locais já bloqueiam merge remoto.
+
+- ESLint 10/Angular ESLint 21 validam src TS/HTML, inclusive templates inline. O teto de 13 avisos é dívida registrada por arquivo no relatório OPE-25, não licença para novos any ou para subir o limite. O hook valida o blob staged sem escrita; o CI valida a árvore completa. Security é bloqueante para audit de produção alto/crítico.

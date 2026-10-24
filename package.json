@@ -8,7 +8,11 @@
     "watch": "ng build --watch --configuration development",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "preview:pwa": "node scripts/preview-pwa.mjs"
+    "preview:pwa": "node scripts/preview-pwa.mjs",
+    "prepare": "husky",
+    "lint:staged": "node scripts/governance/staged-check.mjs",
+    "test:governance": "node --test scripts/governance/*.test.mjs",
+    "lint": "eslint \"src/**/*.ts\" \"src/**/*.html\" --max-warnings=13"
   },
   "private": true,
   "packageManager": "npm@10.9.4",

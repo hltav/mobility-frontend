@@ -1,0 +1,95 @@
+name: Angular CI
+on:
+  pull_request:
+    branches: [develop, master]
+    types: [opened, synchronize, reopened, ready_for_review]
+permissions:
+  contents: read
+concurrency:
+  group: angular-ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  install:
+    name: Install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HUSKY: '0'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - run: npm ci
+      - run: npm run test:governance
+  build:
+    name: Build
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      HUSKY: '0'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+  tests:
+    name: Angular tests
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      HUSKY: '0'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - run: npm ci
+      - run: npm run ng -- test --watch=false
+  lint:
+    name: Lint
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HUSKY: '0'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+  security:
+    name: Security
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HUSKY: '0'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high
