@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { BusLine, BusLineSchema } from '../schemas/bus-line.schema';
 
 const BusLineDtoSchema = z.object({

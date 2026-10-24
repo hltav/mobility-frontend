@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 import { NearbyOriginSchema } from './nearby-response.schema';
 
 export interface ApiResponse<T> {

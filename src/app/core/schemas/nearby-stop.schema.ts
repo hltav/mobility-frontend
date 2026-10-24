@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 const PointSchema = z.object({
   lat: z.coerce.number().min(-90).max(90),
