@@ -1,6 +1,6 @@
 # Governança e CI — OPE-25 — 24/10/2026
 
-Estado mais recente: bundle otimizado para 415,28 kB, audit de produção sem vulnerabilidades, 101 testes Angular e 25 de governança aprovados. Resultados anteriores abaixo são preservados por etapa; a seção final registra a revisão do bundle. Sem commits ou publicação.
+Estado mais recente: após triagem de desenvolvimento, bundle de 415,41 kB, audits de produção/completo sem vulnerabilidades, 101 testes Angular e 25 de governança aprovados. Resultados anteriores abaixo são preservados por etapa; a seção final registra a revisão do bundle. Sem commits ou publicação.
 
 ## Escopo e Git
 
@@ -221,3 +221,7 @@ Continuam os seis avisos de budget de CSS de componentes e o aviso Leaflet Commo
 ### Recomendação
 
 O aumento do inicial foi resolvido por uma alteração pequena e validada, preservando os patches de segurança. A OPE-25 está tecnicamente pronta para revisão do diff e preparação do primeiro PR para develop, respeitando autorização separada para commits/push/PR. Revisar explicitamente os 13 avisos legados de lint. O bootstrap da política e a comprovação dos checks no GitHub continuam obrigatórios antes de ativar os Rulesets; esta revisão não fez nenhuma dessas operações.
+
+## Triagem posterior das ferramentas de desenvolvimento
+
+Após os dois commits locais 4834c23 e 88ca12c, a auditoria completa identificou 32 entradas, apesar de produção estar limpa. Uma nova correção não commitada atualizou CLI/build, PostCSS, Vitest e transitivos, preservou runtime/otimização e reduziu o audit completo a zero; build atual 415,41 kB. Security foi preparado para auditar toda a árvore antes da instalação. O inventário, 124 advisories únicos iniciais, cadeias críticas, overrides e resultados estão na [triagem específica](2026-10-24-OPE-25-dev-dependencies.md). Os números e declarações de ausência de commits das etapas anteriores acima são históricos; nenhum dos dois commits existentes foi alterado e nenhum novo commit/publicação foi feito nessa triagem.

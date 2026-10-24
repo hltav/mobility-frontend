@@ -47,16 +47,16 @@ O whitespace histórico da licença `public/fonts/OFL.txt:21` foi aceito somente
 
 ## Checks preparados
 
-| Workflow / job (nome do check proposto) | Validação                                                                |
-| --------------------------------------- | ------------------------------------------------------------------------ |
-| PR policy / `PR policy`                 | Metadados: origem/destino/card; sem checkout e sem executar código do PR |
-| Angular CI / `Install`                  | npm ci e testes de governança                                            |
-| Angular CI / `Build`                    | npm ci e npm run build                                                   |
-| Angular CI / `Angular tests`            | npm ci e npm run ng -- test --watch=false                                |
-| Angular CI / `Security`                 | npm ci e npm audit --omit=dev --audit-level=high                         |
-| Angular CI / `Lint`                     | npm ci e npm run lint; erros ou mais de 13 avisos reprovam               |
+| Workflow / job (nome do check proposto) | Validação                                                                              |
+| --------------------------------------- | -------------------------------------------------------------------------------------- |
+| PR policy / `PR policy`                 | Metadados: origem/destino/card; sem checkout e sem executar código do PR               |
+| Angular CI / `Install`                  | npm ci e testes de governança                                                          |
+| Angular CI / `Build`                    | npm ci e npm run build                                                                 |
+| Angular CI / `Angular tests`            | npm ci e npm run ng -- test --watch=false                                              |
+| Angular CI / `Security`                 | npm audit --omit=dev --audit-level=high e npm audit --audit-level=high, sem instalação |
+| Angular CI / `Lint`                     | npm ci e npm run lint; erros ou mais de 13 avisos reprovam                             |
 
-CI técnico usa pull_request para develop/master, código sem credenciais persistidas, token contents:read, actions fixadas por SHA e Node 22.22.0. O check Security é bloqueante e não usa continue-on-error; a consulta inicial encontrou 6 entradas altas e 2 moderadas nas dependências de produção. A correção autorizada de Angular/compiler-cli para 21.2.25 e Zod para 4.6.7 zerou o audit de produção, com instalação limpa, build, suíte e lint validados. Não foi executado npm audit fix. O audit não abrange devDependencies nem substitui revisão de segredos. npm ci é repetido por job para manter instalações isoladas. Falhas não são convertidas em sucesso; dependências impedem executar jobs técnicos se Install falhar. Não há filtro paths, inclusive em PRs somente de documentação. O job Lint executa npm run lint diretamente, sem caminho de sucesso pela ausência do script.
+CI técnico usa pull_request para develop/master, código sem credenciais persistidas, token contents:read, actions fixadas por SHA e Node 22.22.0. O check Security é bloqueante e não usa continue-on-error; a consulta inicial encontrou 6 entradas altas e 2 moderadas nas dependências de produção. A correção autorizada de Angular/compiler-cli para 21.2.25 e Zod para 4.6.7 zerou o audit de produção, com instalação limpa, build, suíte e lint validados. Não foi executado npm audit fix. O audit de produção permanece separado, mas o Security agora também executa audit completo para cobrir devDependencies; nenhum dos dois substitui revisão de segredos. Security não executa npm ci: lê o lock e precisa passar antes de Install, que instala e testa a governança. Os jobs técnicos continuam dependendo de Install. A triagem posterior atualizou CLI/build 21.2.28, PostCSS 8.5.31 e Vitest 4.1.12, com audit completo local sem vulnerabilidades reportadas. npm ci é repetido por job para manter instalações isoladas. Falhas não são convertidas em sucesso; dependências impedem executar jobs técnicos se Install falhar. Não há filtro paths, inclusive em PRs somente de documentação. O job Lint executa npm run lint diretamente, sem caminho de sucesso pela ausência do script.
 
 A política usa pull_request_target com eventos opened/synchronize/reopened/edited/ready_for_review, inclusive mudança de destino e descrição. Lê somente payload; não faz checkout, não usa secrets nem altera/fecha PRs. A proteção precisa exigir esse check para que uma reprovação impeça merge. Uma atualização da política requer revisão do mantenedor; testes locais não comprovam execução no GitHub.
 
@@ -89,7 +89,7 @@ Fontes: [regras disponíveis](https://docs.github.com/en/repositories/configurin
 ## Checklist de ativação segura
 
 1. Revisar o diff OPE-25 e os 23 arquivos retidos; autorizar separadamente commit seletivo, push da feature e PR para develop. Não adicionar preferências locais ou screenshots retidos.
-2. Executar os testes de governança, instalação limpa, build, suíte Angular e audit de produção; confirmar que o audit continua sem alertas altos/críticos antes de habilitar Security obrigatório. O bloqueio inicial foi corrigido localmente; ainda falta validação no GitHub. Não usar Vitest direto como substituto; a falha conhecida de setup continua pendente.
+2. Executar os testes de governança, instalação limpa, build, suíte Angular e audits de produção/completo; confirmar que ambos os audits continuam sem alertas altos/críticos antes de habilitar Security obrigatório. O bloqueio inicial foi corrigido localmente; ainda falta validação no GitHub. Não usar Vitest direto como substituto; a falha conhecida de setup continua pendente.
 3. Publicar a feature e abrir PR para develop somente quando autorizado. CI técnico roda a partir do workflow do PR. A política pull_request_target requer workflow presente na branch padrão; como master ainda não contém esse workflow, não prometer seu check nesta primeira entrega.
 4. Para a introdução inicial da governança, revisar manualmente origem/destino/card e os resultados técnicos, obter autorização e integrar por PR em develop. Preparar depois release develop→master também por PR, com revisão manual da política se o check ainda não existir. Essas operações não estão executadas nem autorizadas por este documento. Não ativar checks inexistentes para forçar essa transição.
 5. Após os workflows chegarem à master, validar em PRs controlados os cenários abaixo, incluindo PR só documental, mudança de destino e ausência de card. Registrar URLs das execuções e contextos/app_id reais. Remover condições inválidas somente por ajuste explícito do PR; não fechar/alterar automaticamente.

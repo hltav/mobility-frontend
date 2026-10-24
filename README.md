@@ -64,4 +64,6 @@ Política Git documentada: novos trabalhos partem de `develop`, PRs de funcional
 
 Governança: após conferir hooks existentes, `npm ci` instala Husky; `npm run lint:staged` verifica somente os blobs staged sem escrita e `npm run test:governance` valida a política de PR/hooks. O lint Angular/TypeScript/templates usa ESLint 10 e Angular ESLint 21 via `npm run lint`, com 13 avisos legados visíveis e teto explícito, descritos no relatório OPE-25. Consulte o [fluxo Git](docs/git-workflow.md) para checks propostos, limites e checklist de ativação segura. Não faça push direto em master/develop.
 
-A correção de segurança OPE-25 validou Angular e compiler-cli 21.2.25 e Zod 4.6.7, mantendo CLI/build 21.2.9 e TypeScript 5.9.3. O audit de produção passou com zero vulnerabilidades reportadas. Veja [resultados e limites](docs/audits/2026-10-24-OPE-25-governance.md).
+A correção de segurança OPE-25 validou Angular e compiler-cli 21.2.25 e Zod 4.6.7, mantendo TypeScript 5.9.3. A triagem posterior de desenvolvimento atualizou CLI/build para 21.2.28, PostCSS para 8.5.31 e Vitest para 4.1.12. O audit de produção passou com zero vulnerabilidades reportadas. Veja [resultados e limites](docs/audits/2026-10-24-OPE-25-governance.md).
+
+A [triagem completa de dependências de desenvolvimento](docs/audits/2026-10-24-OPE-25-dev-dependencies.md) reduziu o audit completo de 32 entradas para zero. Security está preparado para auditar produção e toda a árvore antes do job Install, bloqueando alertas altos/críticos. Bundle atual: 415,41 kB; os 13 avisos legados de lint permanecem.

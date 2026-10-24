@@ -111,6 +111,10 @@ test('CI propaga falhas de build/teste sem filtros paths nem continue-on-error',
   assert.match(ci, /run: npm run lint/);
   assert.doesNotMatch(ci, /scripts\?\.lint|Lint configurado/);
   assert.match(ci, /run: npm audit --omit=dev --audit-level=high/);
+  assert.match(ci, /run: npm audit --audit-level=high/);
+  const security = ci.split('  security:\n')[1];
+  assert.doesNotMatch(security, /run: npm ci|needs: install/);
+  assert.match(ci, /install:\n    name: Install\n    needs: security/);
   assert.match(ci, /run: npm run ng -- test --watch=false/);
   assert.doesNotMatch(ci, /continue-on-error|paths:|paths-ignore:|pull_request_target/);
   assert.doesNotMatch(workflow, /actions\/checkout|paths:|paths-ignore:|pull-requests: write/);
