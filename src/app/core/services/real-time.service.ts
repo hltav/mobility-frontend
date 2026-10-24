@@ -13,7 +13,12 @@ export class RealtimeService {
     return this.http.get(`${this.apiUrl}/lines/${lineId}/buses`).pipe(
       map((response: any) => {
         const data = response.data || response;
-        return Array.isArray(data) ? data.map((bus: any) => RealTimeBusSchema.parse(bus)) : [];
+        return Array.isArray(data)
+          ? data
+              .map((bus: any) => RealTimeBusSchema.safeParse(bus))
+              .filter((result) => result.success)
+              .map((result) => result.data)
+          : [];
       }),
     );
   }

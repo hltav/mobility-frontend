@@ -7,8 +7,15 @@ export const LineVariantSchema = z.object({
 
 export const BusLineSchema = z.object({
   id: z.number(),
+  database_id: z.number().nullable().optional(),
+  favorite_id: z.number().optional(),
+  sptrans_id: z.number().nullable().optional(),
   code: z.string(),
   name: z.string(),
+  direction: z
+    .union([z.literal(1), z.literal(2)])
+    .nullable()
+    .optional(),
   origin: z.string(),
   destination: z.string(),
   origin_lat: z.number().nullable().optional(),

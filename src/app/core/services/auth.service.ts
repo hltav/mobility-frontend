@@ -27,18 +27,32 @@ export class AuthService {
   }
 
   register(userData: RegisterRequest) {
-    return this.http.post(`${this.apiUrl}/register`, userData);
+    return this.http.post(`${this.apiUrl}/register`, userData).pipe(
+      map((response) => {
+        const normalized = mapAuthResponse(response);
+        this.saveAuthData(normalized);
+        return normalized;
+      }),
+    );
   }
 
   logout() {
     const token = this.getToken();
+    this.invalidateSession();
     if (token) {
-      this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
-        next: () => this.clearAuth(),
-        error: () => this.clearAuth(),
-      });
-    } else {
-      this.clearAuth();
+      this.http
+        .post(
+          `${this.apiUrl}/logout`,
+          {},
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        )
+        .subscribe({
+          error: () => {
+            /* Session is already cleared, including offline. */
+          },
+        });
     }
   }
 
@@ -49,7 +63,7 @@ export class AuthService {
     this.isAuthenticated.set(true);
   }
 
-  private clearAuth() {
+  invalidateSession() {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user');
     this.isAuthenticated.set(false);
@@ -65,7 +79,13 @@ export class AuthService {
   }
 
   getUser() {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
+    try {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) return null;
+      const result = AuthResponseSchema.shape.user.safeParse(JSON.parse(userStr));
+      return result.success ? result.data : null;
+    } catch {
+      return null;
+    }
   }
 }
