@@ -1,0 +1,121 @@
+{
+  "manifest": {
+    "url": "http://localhost:4300/manifest.webmanifest",
+    "errors": [],
+    "data": "{\n  \"id\": \"/\",\n  \"name\": \"Mobility\",\n  \"short_name\": \"Mobility\",\n  \"description\": \"Sua mobilidade em São Paulo. Linhas, caminhos e ônibus no seu dia a dia.\",\n  \"lang\": \"pt-BR\",\n  \"start_url\": \"/\",\n  \"scope\": \"/\",\n  \"display\": \"standalone\",\n  \"theme_color\": \"#F8FAFC\",\n  \"background_color\": \"#F8FAFC\",\n  \"icons\": [\n    {\n      \"src\": \"icons/icon-192x192.png\",\n      \"sizes\": \"192x192\",\n      \"type\": \"image/png\",\n      \"purpose\": \"any\"\n    },\n    {\n      \"src\": \"icons/icon-512x512.png\",\n      \"sizes\": \"512x512\",\n      \"type\": \"image/png\",\n      \"purpose\": \"any\"\n    },\n    {\n      \"src\": \"icons/maskable-192x192.png\",\n      \"sizes\": \"192x192\",\n      \"type\": \"image/png\",\n      \"purpose\": \"maskable\"\n    },\n    {\n      \"src\": \"icons/maskable-512x512.png\",\n      \"sizes\": \"512x512\",\n      \"type\": \"image/png\",\n      \"purpose\": \"maskable\"\n    }\n  ]\n}\n",
+    "parsed": {
+      "scope": "http://localhost:4300/"
+    },
+    "manifest": {
+      "backgroundColor": "rgba(248,250,252,1)",
+      "description": "Sua mobilidade em São Paulo. Linhas, caminhos e ônibus no seu dia a dia.",
+      "display": "kStandalone",
+      "icons": [
+        {
+          "url": "http://localhost:4300/icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "url": "http://localhost:4300/icons/icon-512x512.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        },
+        {
+          "url": "http://localhost:4300/icons/maskable-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "url": "http://localhost:4300/icons/maskable-512x512.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ],
+      "id": "http://localhost:4300/",
+      "name": "Mobility",
+      "orientation": "DEFAULT",
+      "preferRelatedApplications": false,
+      "scope": "http://localhost:4300/",
+      "startUrl": "http://localhost:4300/",
+      "themeColor": "rgba(248,250,252,1)"
+    }
+  },
+  "installability": {
+    "installabilityErrors": []
+  },
+  "worker": {
+    "scope": "http://localhost:4300/",
+    "state": "activated",
+    "controller": true
+  },
+  "mobile": {
+    "width": 390,
+    "scrollWidth": 390,
+    "bottomNavigation": false
+  },
+  "standaloneEmulation": false,
+  "register": {
+    "width": 390,
+    "scrollWidth": 390,
+    "inputs": 4,
+    "bottomNavigation": false
+  },
+  "offline": {
+    "onLine": false,
+    "publicPage": true,
+    "notice": " Você está offline. A interface continua disponível; login, linhas e posições dos ônibus precisam de conexão. "
+  },
+  "cache": {
+    "names": [
+      "ngsw:/:db:control",
+      "ngsw:/:c860f95e07bba355381f6f83d55b01f0d826d30b:assets:app-shell:cache",
+      "ngsw:/:db:c860f95e07bba355381f6f83d55b01f0d826d30b:assets:app-shell:meta",
+      "ngsw:/:c860f95e07bba355381f6f83d55b01f0d826d30b:assets:static-assets:cache",
+      "ngsw:/:db:c860f95e07bba355381f6f83d55b01f0d826d30b:assets:static-assets:meta"
+    ],
+    "requests": [
+      "http://localhost:4300/manifests",
+      "http://localhost:4300/assignments",
+      "http://localhost:4300/latest",
+      "http://localhost:4300/chunk-2N7XSIY3.js",
+      "http://localhost:4300/chunk-3I36XQUY.js",
+      "http://localhost:4300/chunk-43SYYG27.js",
+      "http://localhost:4300/chunk-4ABO5KDM.js",
+      "http://localhost:4300/chunk-4AFRRI3J.js",
+      "http://localhost:4300/chunk-4FP4LZSJ.js",
+      "http://localhost:4300/chunk-4M3ITFWQ.js",
+      "http://localhost:4300/chunk-66PRQMHN.js",
+      "http://localhost:4300/chunk-CB64B54L.js",
+      "http://localhost:4300/chunk-DTUT2PU4.js",
+      "http://localhost:4300/chunk-G5JLS4HL.js",
+      "http://localhost:4300/chunk-IEMSIH22.js",
+      "http://localhost:4300/chunk-MYNB6ETT.js",
+      "http://localhost:4300/chunk-QTSFKCCZ.js",
+      "http://localhost:4300/chunk-SPH2LHE5.js",
+      "http://localhost:4300/chunk-THHIYB4I.js",
+      "http://localhost:4300/chunk-U3I2A2FC.js",
+      "http://localhost:4300/chunk-VAE3ATWV.js",
+      "http://localhost:4300/chunk-XBZ5D6L2.js",
+      "http://localhost:4300/chunk-YF3EH3PZ.js",
+      "http://localhost:4300/favicon.ico",
+      "http://localhost:4300/index.html",
+      "http://localhost:4300/main-BJ3ACSC2.js",
+      "http://localhost:4300/manifest.webmanifest",
+      "http://localhost:4300/styles-PILK44JL.css",
+      "http://localhost:4300/fonts/OFL.txt",
+      "http://localhost:4300/fonts/plus-jakarta-sans.ttf",
+      "http://localhost:4300/icons/icon-128x128.png",
+      "http://localhost:4300/icons/icon-144x144.png",
+      "http://localhost:4300/icons/icon-152x152.png",
+      "http://localhost:4300/icons/icon-192x192.png",
+      "http://localhost:4300/icons/icon-384x384.png",
+      "http://localhost:4300/icons/icon-512x512.png",
+      "http://localhost:4300/icons/icon-72x72.png",
+      "http://localhost:4300/icons/icon-96x96.png",
+      "http://localhost:4300/icons/maskable-192x192.png",
+      "http://localhost:4300/icons/maskable-512x512.png"
+    ]
+  },
+  "exceptions": []
+}

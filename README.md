@@ -1,59 +1,63 @@
-# MobilityFrontend
+# Open Transit — frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.9.
+Frontend oficial Angular do **Open Transit**, nome oficial provisório do projeto, para consulta de transporte em São Paulo. A identidade visual atual está aprovada como referência de desenvolvimento; a identidade comercial permanece sujeita a decisão futura. Mobility, Mobo e outros candidatos não são marcas definitivas. Nomes presentes no código, manifest, assets e relatórios históricos são preservados nesta etapa documental.
 
-## Development server
+A pasta `mobility-frontend-COMPLETO-VISTORIADO` é referência visual; `mobility_project` é referência de backend, somente leitura. O identificador técnico do pacote/projeto Angular continua `mobility-frontend`.
 
-To start a local development server, run:
+## Desenvolvimento
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Ambiente validado em 24/10/2026: Node 22.22.0, npm 10.9.4, Angular core 21.2.11, CLI/build 21.2.9 e TypeScript 5.9.3. O pacote oficial permanece em `0.0.0`. O lockfile registra as versões resolvidas.
 
 ```bash
-ng generate component component-name
+npm ci
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Abrir `http://localhost:4200/`. A API de desenvolvimento está em `http://localhost:8000/api`. O encaminhamento 4002 citado nos relatórios era específico daquele ambiente, não a porta padrão do projeto.
+
+## Validação e PWA
+
+Comandos utilizados na auditoria técnica de 24/10/2026:
 
 ```bash
-ng generate --help
+npm run ng -- test --watch=false
+npm run build
 ```
 
-## Building
-
-To build the project run:
+Resultado registrado naquela auditoria: **97 testes em 19 arquivos aprovados** pelo builder Angular; build de produção aprovado com avisos de orçamento e Leaflet CommonJS. O comando alternativo `npm test -- --run` falhou por setup inexistente na configuração Vitest externa; essa configuração continua sem correção. Não há target E2E configurado; HTTP simulado não comprova integração com Laravel. Build e testes funcionais não foram reexecutados na consolidação documental.
 
 ```bash
-ng build
+npm run preview:pwa
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+A prévia de produção usa `http://localhost:4300/`, serve `dist/mobility-frontend/browser` e encaminha `/api` para `http://127.0.0.1:8000`. Exige build prévio. O worker é habilitado em produção; a primeira carga precisa de rede e offline limita-se à interface estática. Hospedagem pública exige HTTPS e proxy de `/api`.
 
-## Running unit tests
+## Estado das entregas
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+As situações abaixo distinguem código existente de aceite integrado. Entregue indica implementação observada, sem significar publicação ou validação ponta a ponta.
 
-```bash
-ng test
-```
+| Situação                           | Entrega ou pendência                                        | Evidência e limite                                                                                                                               |
+| ---------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Entregue                           | Fundação visual, Design System e temas claro/escuro/sistema | Código e testes registrados na auditoria                                                                                                         |
+| Entregue                           | Onboarding e autenticação modernizados                      | Formulários, schemas, guards e interceptor; login/cadastro levam a `/home`                                                                       |
+| Parcialmente implementado          | Experiência PWA                                             | Configuração técnica presente; instalação standalone, Android físico e atualização real entre builds ainda sem aceite                            |
+| Parcialmente implementado          | Estratégia mobile-only                                      | Molduras desktop nas telas públicas continuam identificadas                                                                                      |
+| Pendente                           | Integração ponta a ponta com Laravel                        | Requer ambiente/conta autorizados; testes HTTP simulados não substituem o roteiro                                                                |
+| Pendente                           | Correção do comando Vitest alternativo                      | Setup aponta para arquivo inexistente; usar builder Angular conforme documentação                                                                |
+| Bloqueado no contexto da auditoria | Verificação automática GitHub–Linear                        | O conector acessava outro workspace; URL/equipe oficiais agora foram informadas pelo responsável, mas acesso e integração seguem sem confirmação |
 
-## Running end-to-end tests
+Home, busca, detalhes, favoritos, mapa, paradas próximas e perfil têm código implementado em diferentes graus de aceite. As rotas funcionais protegidas exigem token local; a validade da sessão é responsabilidade do backend. O perfil ainda tem funções futuras explicitadas; veja a matriz da auditoria.
 
-For end-to-end (e2e) testing, run:
+O ajuste autorizado posterior à auditoria restringiu `/preview/*` ao desenvolvimento, com identidade sintética e favoritos em memória. Produção não registra a rota nem inclui os módulos de fixtures; links demonstrativos ficam ocultos. O builder Angular agora aprova **101 testes em 21 arquivos**, e o build de produção foi aprovado. A verificação em navegador confirmou a separação usando API local controlada, sem provar integração real com Laravel. Detalhes e resultados no [relatório de publicação atualizado](docs/audits/2026-10-24-initial-publication-preparation.md).
 
-```bash
-ng e2e
-```
+As demais pendências técnicas permanecem na [matriz histórica da auditoria](docs/audits/2026-10-24-frontend-audit.md). O comando `preview:pwa` serve o build de produção e não habilita `/preview`; para demonstração visual use `npm start`, conforme [desenvolvimento](docs/development.md).
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Documentação
 
-## Additional Resources
+- [Arquitetura](docs/architecture.md), [engenharia](docs/engineering.md) e [instruções para agentes](AGENTS.md).
+- [Desenvolvimento](docs/development.md), [contratos HTTP](docs/api-contracts.md), [PWA](docs/pwa.md) e [Design System](docs/design-system.md).
+- [Contribuição](CONTRIBUTING.md), [Git e publicação inicial](docs/git-workflow.md), [Linear](docs/linear-workflow.md) e [template de PR](.github/PULL_REQUEST_TEMPLATE.md).
+- [Changelog](CHANGELOG.md) e [auditoria de 24/10/2026](docs/audits/2026-10-24-frontend-audit.md), com matriz de evidências e pendências.
+- Relatórios históricos dos [lotes 1](docs/migration-v2-batch-1.md) e [2](docs/migration-v2-batch-2.md). A auditoria registra divergências posteriores sem apagar esses relatos.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Política Git documentada: novos trabalhos partem de `develop`, PRs de funcionalidades têm `develop` como destino e releases chegam a `master` por PR. A aplicação operacional dessa política aguarda publicação inicial autorizada, criação de develop, CI e proteções. Rastreabilidade: [Linear Open Transit](https://linear.app/open-transit), equipe **OPE**; integração automática não confirmada. Nenhuma operação de publicação foi realizada nesta consolidação.

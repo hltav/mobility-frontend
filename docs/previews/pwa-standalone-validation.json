@@ -1,0 +1,7 @@
+{
+  "browser": "Chrome/154.0.8037.58 (Brave headless)",
+  "manifestId": "http://localhost:4300/",
+  "validated": false,
+  "limitation": "CDP PWA.install returned -32601: 'PWA.install' wasn't found on both browser and page targets. No installation or standalone launch was validated.",
+  "osIntegration": "Browser profile and XDG data/config/cache directories isolated inside frontend .migration-baselines."
+}
