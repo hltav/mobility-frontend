@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, forkJoin, map, Observable, of } from 'rxjs';
-import { z } from 'zod';
+import * as z from 'zod';
 import { environment } from '../../../environments/environment';
 import { normalizeBusLine } from '../mappers/normalize-bus-line.mapper';
 import { ApiResponse } from '../schemas/api-response.schema';

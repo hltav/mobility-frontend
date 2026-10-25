@@ -6,7 +6,7 @@ Workspace oficial do Open Transit: [https://linear.app/open-transit](https://lin
 
 Linear é a fonte de rastreabilidade das tarefas e do escopo aprovado. A gestão de cards, classificações, estados, permissões e automações será realizada separadamente pelo responsável do projeto. Nenhum card ou configuração deve ser alterado como efeito colateral desta documentação.
 
-A auditoria de 24/10/2026 registrou que o conector disponível acessava outro workspace. Esse registro histórico é preservado no [relatório](audits/2026-10-24-frontend-audit.md). A identificação oficial fornecida agora resolve a referência documental, mas não comprova acesso do conector, estados reais ou integração automática GitHub–Linear. Nenhuma consulta ou comando remoto foi executado nesta consolidação.
+A auditoria de 24/10/2026 registrou que o conector disponível acessava outro workspace. Esse registro histórico é preservado no [relatório](audits/2026-10-24-frontend-audit.md). A identificação oficial fornecida agora resolve a referência documental, mas não comprova acesso do conector, estados reais ou integração automática GitHub–Linear. A leitura do GitHub na etapa OPE-25 não comprova acesso ao workspace Linear nem integração automática.
 
 ## Classificações de cards
 
@@ -30,7 +30,7 @@ A classificação do card não autoriza alteração fora do escopo aprovado. Em 
 | Artefato | Vínculo exigido                                                                                                                        |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Card     | Identificador OPE real, objetivo, escopo aprovado e critérios de aceite                                                                |
-| Branch   | Base develop; feature/fix/docs com o identificador real, por exemplo `feature/OPE-XX-descricao` apenas como modelo                     |
+| Branch   | Base develop; feature/fix/docs/refactor/test/chore com o identificador real, por exemplo `feature/OPE-XX-descricao` apenas como modelo |
 | Commit   | Conventional Commits com o mesmo card real, conforme [Git](git-workflow.md)                                                            |
 | PR       | Link completo do card, resumo, contexto, evidências, testes/build, riscos, contratos e pendências; funcionalidades para develop        |
 | Release  | PR develop→master, cards/PRs/commits incluídos, resultado dos checks, autorização e referência da versão ou SHA efetivamente publicada |
@@ -60,4 +60,8 @@ A relação documental acima funciona com links explícitos. Não há confirmaç
 - [ ] Se autorizado, validar vínculos e transições em card controlado e registrar evidências sanitizadas.
 - [ ] Atualizar este documento com configurações efetivamente confirmadas, sem expor credenciais.
 
-A publicação inicial e a criação/proteção de develop seguem o [plano Git](git-workflow.md). Nenhuma operação remota está autorizada nesta consolidação.
+A publicação inicial e a criação/proteção de develop seguem o [plano Git](git-workflow.md). Master/develop foram publicadas na OPE-34; a OPE-25 prepara a governança, sem autorização de push, PR, merge ou ativação de proteções.
+
+## Validação preparada na OPE-25
+
+O card real OPE-25 — Criar CI de lint, testes, build e segurança — foi confirmado pelo mantenedor para Husky, Actions, política de PR e propostas de Rulesets. A branch é `feature/OPE-25-governanca-ci-protecao-branches`. A política de PR exige card no título/corpo fora de comentários HTML, correspondendo ao ID da branch em PR para develop. Release develop→master lista cards reais incluídos. Hooks validam a sintaxe numérica do ID; não consultam Linear nem confirmam existência, estado ou aceite. O mantenedor faz essa verificação. Não foi alterado nenhum card ou estado; integração automática permanece não confirmada.

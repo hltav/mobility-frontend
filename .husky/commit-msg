@@ -1,0 +1,1 @@
+node scripts/governance/commit-message.mjs "$1"

@@ -15,7 +15,7 @@
 - Implementação altera comportamento somente no escopo aprovado e preserva funcionalidades reais e contratos existentes.
 - Auditoria inspeciona e valida; documentar um problema não autoriza corrigi-lo fora do escopo.
 - Documentação consolida fatos e políticas; não altera código, textos da aplicação, assets ou contratos para fazê-los coincidir com o documento.
-- Publicação é etapa separada: prepare conteúdo, evidências e riscos para revisão. Não faça commits, push, abertura/merge de PR, proteção ou alteração de branch automaticamente. Execute apenas operações explicitamente autorizadas; nesta consolidação, nenhuma delas está autorizada.
+- Publicação é etapa separada: prepare conteúdo, evidências e riscos para revisão. Não faça commits, push, abertura/merge de PR, proteção ou alteração de branch automaticamente. Execute apenas operações explicitamente autorizadas; implementação de governança não autoriza publicação ou ativação de proteção.
 
 ## Arquitetura e Angular
 
@@ -52,3 +52,25 @@
 - Não afrouxe budgets ou asserts para ocultar falhas. Separe warnings e problemas preexistentes de regressões. Revise segredos por padrões sem imprimir valores, artefatos, licenças e arquivos grandes.
 - Siga [Git](docs/git-workflow.md): card real confirmado, Conventional Commits, PR para `develop`, release para `master`. Após a exceção inicial autorizada, sem push direto em master. Não use `git add .` em árvore com trabalho de terceiros.
 - Todo PR de feature tem `develop` como destino. Merge depende dos checks definidos e da autorização do mantenedor responsável; não presuma aprovação formal do próprio PR pelo autor. Confira acesso e estados reais da equipe OPE antes de qualquer transição autorizada; não presuma integração GitHub–Linear. Entregue evidências para revisão e mantenha pendências explícitas.
+
+## Governança OPE-25
+
+- Master/develop foram publicadas na OPE-34. Novos trabalhos partem de develop em branch por card real. Aceite feature/fix/docs/refactor/test/chore; os demais padrões exigem revisão da política.
+- Leia o [fluxo Git](docs/git-workflow.md) antes de alterar hooks, workflows ou proteções. Preserve os 23 arquivos locais retidos e qualquer hook existente. Não use `git add .` nem `git add -A`.
+- Instale com npm ci. Pre-commit lê apenas staging e não escreve; commit-msg valida Conventional Commits com OPE numérico. Não invente card nem alegue que regex comprova sua existência.
+- Mudanças de governança exigem npm run test:governance e npm run lint; CI/build/testes Angular devem ser validados quando seus comandos/dependências forem afetados. Não corrija Vitest direto incidentalmente nem o apresente como aprovado.
+- PRs vão para develop; somente develop do próprio repositório vai para master. Política inválida reprova por check, sem fechar/alterar PR. Mantenha token mínimo, política por metadados sem checkout de head em pull_request_target e ausência de filtros paths em checks obrigatórios.
+- Rulesets JSON estão Disabled para aprovação, com zero aprovações formais e bypass vazio. Não ativar antes de os checks existirem e passarem no GitHub. Autor não aprova formalmente o próprio PR; mantenedor registra autorização. Não afirmar que checks locais já bloqueiam merge remoto.
+
+- ESLint 10/Angular ESLint 21 validam src TS/HTML, inclusive templates inline. O teto de 13 avisos é dívida registrada por arquivo no relatório OPE-25, não licença para novos any ou para subir o limite. O hook valida o blob staged sem escrita; o CI valida a árvore completa. Security audita produção e árvore completa pelo lockfile antes de Install; ambos bloqueiam alertas altos/críticos, sem ignorar dependências de desenvolvimento. Overrides exigem justificativa, peers/engines compatíveis, instalação limpa e plano de revisão.
+
+## Padrão obrigatório de Pull Requests
+
+- Todo PR deve partir do [template oficial](.github/PULL_REQUEST_TEMPLATE.md), fonte de verdade da estrutura do corpo. Leia a versão atual do arquivo antes de preparar cada PR; não reutilize um texto antigo como substituto do template.
+- Consulte o card real no workspace Open Transit, leia descrição, critérios de aceite e escopo aprovado. Se a consulta falhar, registre o impedimento e o que foi confirmado pelo responsável; não invente acesso, critérios ou aceite. Não altere cards incidentalmente.
+- Confira branch/base, commits e diff reais, incluindo mudanças locais não commitadas. Diferencie conteúdo candidato, conteúdo commitado e trabalho de terceiros; não incorpore mudanças locais sem autorização. Use [Git](docs/git-workflow.md#preparação-obrigatória-do-corpo-do-pr) como roteiro.
+- Gere o corpo completo com todas as seções e subseções do template, preenchidas para a task real. Preserve títulos e ordem. Para não aplicável, dê justificativa objetiva; não apague a seção nem invente conteúdo para preenchê-la.
+- Use somente IDs reais, links e evidências conferidos. Nenhum placeholder pode permanecer no PR final. Marque checkboxes apenas com prova e registre SHA/árvore, ambiente, execução histórica, falhas, riscos, limites e fora do escopo. Não considerar texto exemplificativo ou testes antigos como nova validação.
+- Antes de publicar, compare os títulos do corpo aos do template e revise a política de origem/destino/card. Desenvolvimento vai para develop; master recebe somente release de develop do próprio repositório na política atual. Exceção formal não desativa checks nem autoriza bypass automático.
+- Os workflows atuais validam metadados e checks técnicos; não validam automaticamente todas as seções do corpo. A obrigatoriedade do modelo também é regra operacional de revisão. Não afirmar enforcement remoto que não foi implementado/comprovado.
+- Preparar o texto não autoriza commit, push, abertura de PR, merge ou ativação de Rulesets. Nunca faça merge automaticamente; aguarde autorização explícita do mantenedor. Autor não aprova formalmente o próprio PR. Preserve os três commits OPE-25 nesta padronização documental.
