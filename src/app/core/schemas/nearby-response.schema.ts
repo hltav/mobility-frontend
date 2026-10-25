@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { BusLineSchema } from './bus-line.schema';
 
 export const NearbyOriginSchema = z.object({

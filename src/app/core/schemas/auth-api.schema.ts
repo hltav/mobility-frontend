@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 export const AuthApiResponseSchema = z.object({
   message: z.string(),
@@ -8,11 +8,11 @@ export const AuthApiResponseSchema = z.object({
       id: z.number(),
       name: z.string(),
       email: z.string().email(),
-      avatar: z.string().nullable(),
+      avatar: z.string().nullable().optional(),
       created_at: z.string(),
       updated_at: z.string(),
-      email_verified_at: z.string().nullable(),
-      google_id: z.string().nullable(),
+      email_verified_at: z.string().nullable().optional(),
+      google_id: z.string().nullable().optional(),
     }),
   }),
 });

@@ -1,0 +1,42 @@
+name: PR policy
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+permissions:
+  contents: read
+jobs:
+  policy:
+    name: PR policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Não fazer checkout nem executar código do PR neste contexto.
+      - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const base = pr.base.ref;
+            const head = pr.head.ref;
+            const cardPattern = /\bOPE-[1-9]\d*\b/;
+            const content = `${pr.title}\n${pr.body || ''}`.replace(/<!--[\s\S]*?-->/g, '');
+            const cards = content.match(/\bOPE-[1-9]\d*\b/g) || [];
+            if (base === 'master') {
+              if (head !== 'develop' || pr.head.repo?.full_name !== pr.base.repo.full_name) {
+                core.setFailed('Este Pull Request não pode ser integrado à master. Altere a branch de destino para develop. Somente Pull Requests de release originados em develop podem ser integrados à master.');
+                return;
+              }
+            } else if (base === 'develop') {
+              const branch = /^(feature|fix|docs|refactor|test|chore)\/(OPE-[1-9]\d*)-[a-z0-9]+(?:-[a-z0-9]+)*$/.exec(head);
+              if (!branch || !cards.includes(branch[2])) {
+                core.setFailed('PR para develop exige branch tipo/OPE-<número>-descricao e o mesmo card no título ou na descrição.');
+                return;
+              }
+            } else {
+              core.setFailed('Destino inválido: utilize develop; master recebe apenas releases de develop.');
+              return;
+            }
+            if (!cardPattern.test(content)) {
+              core.setFailed('Informe um card OPE real no título ou na descrição do PR.');
+              return;
+            }
+            core.info(`Política aprovada: ${head} → ${base}. Existência e escopo do card exigem revisão humana.`);
