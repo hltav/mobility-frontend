@@ -1,0 +1,95 @@
+/* OPE-37: one frame for every route, exclusively in desktop browsers.
+   Touch devices and installed PWAs retain their existing viewport layout. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (display-mode: browser) {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--preview-bg);
+  }
+
+  app-root {
+    display: grid;
+    place-items: center;
+    height: 100dvh;
+  }
+
+  app-root .app-shell {
+    --device-height: min(844px, calc(100dvh - 72px));
+    --device-width: min(390px, calc((100dvh - 72px) * 390 / 844));
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: var(--device-width);
+    height: var(--device-height);
+    min-height: 0;
+    overflow: hidden;
+    /* Establish the containing block for fixed toasts and overlays without scaling. */
+    contain: layout paint;
+    container-type: size;
+    border: 1px solid var(--border);
+    border-radius: 42px;
+    background: var(--bg-main);
+    box-shadow:
+      0 0 0 12px var(--deep),
+      0 0 0 13px var(--control-border),
+      0 24px 80px rgb(0 0 0 / 0.3);
+  }
+
+  app-root .app-shell .app-content {
+    flex: 1;
+    min-height: 0;
+    max-width: none;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scroll-padding-block: 1rem;
+  }
+
+  app-root .app-shell--compact .app-content {
+    display: block;
+  }
+
+  app-root .app-shell--map .app-content {
+    display: flex;
+    overflow: hidden;
+  }
+
+  app-root .app-shell app-bottom-nav,
+  app-root .app-shell app-navbar,
+  app-root .app-shell app-pwa-status {
+    flex-shrink: 0;
+  }
+
+  app-root .app-shell .bottom-nav {
+    position: static;
+  }
+
+  app-root .app-shell .auth-screen {
+    min-height: 100cqh;
+  }
+
+  app-root .app-shell .favorites-page,
+  app-root .app-shell .profile-page {
+    min-height: calc(100cqh - var(--nav-height));
+  }
+
+  app-root .app-shell .map-filters {
+    max-height: calc(100cqh - 170px);
+  }
+
+  app-root .app-shell app-toast > div {
+    max-width: calc(100% - 2rem);
+    width: max-content;
+  }
+
+  /* Modal dialogs use the browser top layer, so constrain them explicitly. */
+  app-root .app-shell dialog[open] {
+    max-width: calc(var(--device-width) - 24px);
+    max-height: calc(var(--device-height) - 24px);
+  }
+
+  app-root .app-shell .full-map-dialog app-map > div {
+    max-height: calc(var(--device-height) - 160px);
+  }
+}
