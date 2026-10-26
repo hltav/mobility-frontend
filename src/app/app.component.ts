@@ -26,6 +26,7 @@ import { PwaStatusComponent } from './shared/components/pwa-status/pwa-status.co
       class="app-shell"
       [class.app-shell--authenticated]="authenticatedArea() || previewArea()"
       [class.app-shell--entry]="entryArea()"
+      [class.app-shell--landing]="landingArea()"
       [class.app-shell--home]="homeArea()"
       [class.app-shell--compact]="compactArea()"
       [class.app-shell--details]="detailsArea()"
@@ -38,8 +39,8 @@ import { PwaStatusComponent } from './shared/components/pwa-status/pwa-status.co
         <app-navbar />
       }
       <app-pwa-status />
-      <main id="main-content" class="app-content" tabindex="-1">
-        <router-outlet />
+      <main #content id="main-content" class="app-content" tabindex="-1">
+        <router-outlet (activate)="content.scrollTop = 0" />
       </main>
       @if ((authenticatedArea() || previewArea()) && !detailsArea() && !stopsArea()) {
         <app-bottom-nav [preview]="previewArea()" />
@@ -79,6 +80,7 @@ export class AppComponent {
     () => (this.auth.isAuthenticated() && this.url() === '/home') || this.url() === '/preview/home',
   );
   readonly entryArea = computed(() => ['/', '/login', '/register'].includes(this.url()));
+  readonly landingArea = computed(() => this.url() === '/');
   readonly authenticatedArea = computed(
     () => this.auth.isAuthenticated() && !['/login', '/register', '/'].includes(this.url()),
   );

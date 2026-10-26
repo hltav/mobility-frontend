@@ -2,6 +2,7 @@
 
 @import 'tailwindcss';
 @import './styles/theme.css';
+@import './styles/device-shell.css';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -586,24 +587,23 @@
   color: var(--text-main);
   box-shadow: var(--control-shadow);
 }
-@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (display-mode: browser) {
-  .app-shell--entry .app-content {
-    padding: 24px 16px;
-  }
+/* Landing alone uses the space left after any PWA notice. Size containment
+   supplies cqh/cqw to its composition; overflow remains accessible for large text. */
+.app-shell--landing {
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
-
-@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (display-mode: browser) {
-  .app-shell--entry .entry-page {
-    max-width: 390px;
-    min-height: min(844px, calc(100dvh - 48px));
-    border-radius: 42px;
-    overflow: hidden;
-    border: 1px solid var(--entry-border);
-    box-shadow:
-      0 0 0 12px #0b1021,
-      0 0 0 13px #293148,
-      0 24px 80px #0005;
-  }
+.app-shell--landing app-pwa-status {
+  flex-shrink: 0;
+}
+.app-shell--landing .app-content {
+  flex: 1;
+  min-height: 0;
+  display: block;
+  container-type: size;
+  overflow: auto;
 }
 
 /* Login and registration are separate pages within the public experience. */
@@ -697,20 +697,6 @@
   padding: 4px 0;
   text-decoration: none;
 }
-@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (display-mode: browser) {
-  .auth-screen {
-    max-width: 390px;
-    min-height: min(820px, calc(100dvh - 48px));
-    padding-top: 64px;
-    border-radius: 42px;
-    border: 1px solid var(--border);
-    box-shadow:
-      0 0 0 12px #0b1021,
-      0 0 0 13px #293148,
-      0 24px 80px #0005;
-  }
-}
-
 /* Compact home uses the full PWA viewport, including its navigation. */
 .app-shell--compact {
   --nav-height: 68px;
