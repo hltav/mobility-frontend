@@ -17,6 +17,7 @@ describe('Authenticated mobile shell', () => {
       providers: [
         { provide: AuthService, useValue: auth },
         provideRouter([
+          { path: '', pathMatch: 'full', component: Page },
           { path: 'login', component: Page },
           { path: 'register', component: Page },
           { path: 'home', component: Page, canActivate: [authGuard] },
@@ -55,6 +56,37 @@ describe('Authenticated mobile shell', () => {
     expect(fixture.nativeElement.querySelector('.app-shell--details')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('app-navbar')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-bottom-nav')).toBeNull();
+  });
+
+  it('returns the internal content to the top when navigating between pages', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/home');
+    fixture.detectChanges();
+    const content = fixture.nativeElement.querySelector('main') as HTMLElement;
+    content.scrollTop = 400;
+
+    await router.navigateByUrl('/profile');
+    fixture.detectChanges();
+
+    expect(content.scrollTop).toBe(0);
+    expect(fixture.nativeElement.querySelector('app-bottom-nav')).not.toBeNull();
+  });
+
+  it('limits the landing composition to the public root route', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.app-shell--landing')).not.toBeNull();
+
+    for (const path of ['/login', '/register', '/home']) {
+      await router.navigateByUrl(path);
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('.app-shell--landing')).toBeNull();
+    }
   });
 
   it('uses the screen headers and retains bottom navigation for Favorites and Profile', async () => {
