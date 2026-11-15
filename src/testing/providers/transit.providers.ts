@@ -1,21 +1,22 @@
+// Providers sintéticos exclusivos de testes; não importar no runtime.
 import { Injectable, Provider, signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
-import { BusLine } from '../../core/schemas/bus-line.schema';
-import { RealTimeBus } from '../../core/schemas/real-timeBus.schema';
-import { BusLinesService } from '../../core/services/bus-lines.service';
-import { FavoritesService } from '../../core/services/favorites.service';
-import { RealtimeService } from '../../core/services/real-time.service';
-import { StopsService } from '../../core/services/stops.service';
-import { NearbyStopsRequest } from '../../core/schemas/nearby-stop.schema';
-import { PREVIEW_NEARBY_STOPS, PREVIEW_LINES, PREVIEW_STOPS } from './preview-data';
-import { AuthService } from '../../core/services/auth.service';
+import { BusLine } from '../../app/core/schemas/bus-line.schema';
+import { RealTimeBusSchema } from '../../app/core/schemas/real-timeBus.schema';
+import { BusLinesService } from '../../app/core/services/bus-lines.service';
+import { FavoritesService } from '../../app/core/services/favorites.service';
+import { RealtimeService } from '../../app/core/services/real-time.service';
+import { StopsService } from '../../app/core/services/stops.service';
+import { NearbyStopsRequest } from '../../app/core/schemas/nearby-stop.schema';
+import { TEST_NEARBY_STOPS, TEST_LINES, TEST_STOPS } from '../fixtures/transit.fixture';
+import { AuthService } from '../../app/core/services/auth.service';
 
 @Injectable()
-export class PreviewAuthService {
+export class TestAuthService {
   readonly isAuthenticated = signal(false).asReadonly();
 
   getUser() {
-    return { id: 0, name: 'Pessoa de demonstração', email: 'demo@example.invalid' };
+    return { id: 0, name: 'Pessoa de teste', email: 'test@example.invalid' };
   }
 
   getToken(): null {
@@ -23,7 +24,7 @@ export class PreviewAuthService {
   }
 
   logout() {
-    // Exiting the demo is navigation only; never clear or revoke the real session.
+    // Provider de teste: não lê nem modifica a sessão do navegador.
   }
 }
 
@@ -33,10 +34,10 @@ const normalize = (value: string) =>
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .trim();
-const cloneLines = () => structuredClone(PREVIEW_LINES);
+const cloneLines = () => structuredClone(TEST_LINES);
 
 @Injectable()
-export class PreviewBusLinesService {
+export class TestBusLinesService {
   getAll(params?: { term?: string; per_page?: number }) {
     const term = normalize(params?.term ?? '');
     return of(
@@ -44,7 +45,7 @@ export class PreviewBusLinesService {
         .filter((line) =>
           normalize(`${line.code} ${line.name} ${line.origin} ${line.destination}`).includes(term),
         )
-        .slice(0, params?.per_page ?? PREVIEW_LINES.length),
+        .slice(0, params?.per_page ?? TEST_LINES.length),
     );
   }
   getById(id: number) {
@@ -67,8 +68,8 @@ export class PreviewBusLinesService {
     return of('Origem simulada — São Paulo');
   }
   getStops(_id: number, direction?: 1 | 2) {
-    if (!direction) return of([]); // Exercise the existing direction selector in details.
-    const stops = structuredClone(PREVIEW_STOPS);
+    if (!direction) return of([]); // Sem sentido informado, não há paradas no cenário de teste.
+    const stops = structuredClone(TEST_STOPS);
     return of(
       (direction === 2 ? stops.reverse() : stops).map((stop, index) => ({
         ...stop,
@@ -85,14 +86,13 @@ export class PreviewBusLinesService {
 }
 
 @Injectable()
-export class PreviewFavoritesService {
+export class TestFavoritesService {
   private readonly favorites = new Map<number, BusLine>();
   getFavorites() {
     return of(structuredClone([...this.favorites.values()]));
   }
   addFavorite(value: BusLine | number) {
-    const line =
-      typeof value === 'number' ? PREVIEW_LINES.find((line) => line.id === value) : value;
+    const line = typeof value === 'number' ? TEST_LINES.find((line) => line.id === value) : value;
     if (!line) return throwError(() => new Error('Linha de exemplo não encontrada.'));
     this.favorites.set(line.id, {
       ...structuredClone(line),
@@ -108,30 +108,32 @@ export class PreviewFavoritesService {
 }
 
 @Injectable()
-export class PreviewRealtimeService {
+export class TestRealtimeService {
   getBuses(id: number) {
     return of(
-      structuredClone(PREVIEW_LINES.find((line) => line.id === id)?.buses ?? []) as RealTimeBus[],
+      structuredClone(TEST_LINES.find((line) => line.id === id)?.buses ?? []).map((bus) =>
+        RealTimeBusSchema.parse(bus),
+      ),
     );
   }
 }
 
 @Injectable()
-export class PreviewStopsService {
+export class TestStopsService {
   nearest(_origin: NearbyStopsRequest, radiusKm = 0.5, limit = 5) {
     return of({
       point: { lat: -23.5505, lng: -46.6333 },
-      stops: structuredClone(PREVIEW_NEARBY_STOPS)
+      stops: structuredClone(TEST_NEARBY_STOPS)
         .filter((stop) => stop.distance_meters <= radiusKm * 1000)
         .slice(0, limit),
     });
   }
 }
 
-export const PREVIEW_PROVIDERS: Provider[] = [
-  { provide: AuthService, useClass: PreviewAuthService },
-  { provide: StopsService, useClass: PreviewStopsService },
-  { provide: BusLinesService, useClass: PreviewBusLinesService },
-  { provide: FavoritesService, useClass: PreviewFavoritesService },
-  { provide: RealtimeService, useClass: PreviewRealtimeService },
+export const TEST_PROVIDERS: Provider[] = [
+  { provide: AuthService, useClass: TestAuthService },
+  { provide: StopsService, useClass: TestStopsService },
+  { provide: BusLinesService, useClass: TestBusLinesService },
+  { provide: FavoritesService, useClass: TestFavoritesService },
+  { provide: RealtimeService, useClass: TestRealtimeService },
 ];

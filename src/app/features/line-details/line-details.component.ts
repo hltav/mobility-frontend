@@ -46,7 +46,6 @@ export class LineDetailsComponent implements OnInit, OnDestroy {
   private pathSubscription?: Subscription;
 
   readonly theme = inject(ThemeService);
-  readonly isPreview = this.route.snapshot.data?.['preview'] === true;
   readonly line = signal<BusLine | null>(null);
   readonly buses = signal<RealTimeBus[]>([]);
   readonly userLocation = signal<MapPoint | null>(null);
@@ -76,11 +75,10 @@ export class LineDetailsComponent implements OnInit, OnDestroy {
         Number.isFinite(bus.lat) && Number.isFinite(bus.lng) && bus.lat !== 0 && bus.lng !== 0,
     ),
   );
-  readonly lastQueryLabel = computed(() =>
-    this.isPreview
-      ? 'Simulada'
-      : (this.lastUpdated()?.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) ??
-        'Pendente'),
+  readonly lastQueryLabel = computed(
+    () =>
+      this.lastUpdated()?.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) ??
+      'Pendente',
   );
 
   ngOnInit() {
@@ -235,10 +233,6 @@ export class LineDetailsComponent implements OnInit, OnDestroy {
   }
 
   requestUserLocation() {
-    if (this.isPreview) {
-      this.userLocation.set({ lat: -23.5505, lng: -46.6333 });
-      return;
-    }
     if (!navigator.geolocation) {
       this.toast.show('Localização indisponível neste navegador.', 'info');
       return;
@@ -259,14 +253,12 @@ export class LineDetailsComponent implements OnInit, OnDestroy {
   toggleFavorite() {
     const line = this.line();
     if (!line || !this.favoritesReady() || this.favoriteBusy()) return;
-    if (!this.isPreview && line.isFavorite) {
+    if (line.isFavorite) {
       void this.router.navigate(['/favorites']);
       return;
     }
     this.favoriteBusy.set(true);
-    const request = line.isFavorite
-      ? this.favoritesService.removeFavorite(line.id)
-      : this.favoritesService.addFavorite(line);
+    const request = this.favoritesService.addFavorite(line);
     request
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -308,6 +300,6 @@ export class LineDetailsComponent implements OnInit, OnDestroy {
         : `há ${Math.floor(seconds / 3600)}h`;
   }
   goBack() {
-    void this.router.navigate([this.isPreview ? '/preview/search' : '/search']);
+    void this.router.navigate(['/search']);
   }
 }

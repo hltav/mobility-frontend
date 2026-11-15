@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from '../../app.routes';
 import { AuthService } from '../../core/services/auth.service';
@@ -9,10 +9,9 @@ import { FavoritesService } from '../../core/services/favorites.service';
 import { authInterceptor } from '../../core/interceptors/auth.interceptor';
 import { environment } from '../../../environments/environment';
 import { HomeComponent } from '../home/home.component';
-import { ProfileComponent } from '../profile/profile.component';
-import { PreviewAuthService } from './preview-services';
+import { OnboardingComponent } from '../onboarding/onboarding.component';
 
-describe('Development demo and real session separation', () => {
+describe('Remoção das entradas demonstrativas e preservação da sessão', () => {
   const sessionUser = {
     id: 7,
     name: 'Pessoa da sessão de teste',
@@ -45,35 +44,16 @@ describe('Development demo and real session separation', () => {
     }
   });
 
-  it('uses only a synthetic identity and temporary favorites in real lazy demo routes, preserving the stored session', async () => {
+  it('redireciona a entrada demonstrativa para a Home com serviços reais e preserva a sessão', async () => {
     const realAuth = TestBed.inject(AuthService);
     const realFavorites = TestBed.inject(FavoritesService);
     const harness = await RouterTestingHarness.create();
-    const home = await harness.navigateByUrl('/preview/home', HomeComponent);
-    const demoAuth = harness.routeDebugElement!.injector.get(AuthService);
-    expect(demoAuth).toBeInstanceOf(PreviewAuthService);
-    expect(demoAuth).not.toBe(realAuth);
-    expect(demoAuth.getToken()).toBeNull();
-    expect(demoAuth.isAuthenticated()).toBe(false);
-    expect(home.firstName).toBe('Pessoa');
-    expect(harness.routeNativeElement?.textContent).not.toContain(sessionUser.name);
-    expect(harness.routeDebugElement!.injector.get(FavoritesService)).not.toBe(realFavorites);
-    home.toggleFavorite(home.lines()[0]);
-    const profile = await harness.navigateByUrl('/preview/profile', ProfileComponent);
-    expect(profile.user).toEqual({
-      id: 0,
-      name: 'Pessoa de demonstração',
-      email: 'demo@example.invalid',
-    });
-    expect(profile.favoritesCount()).toBe(1);
-    expect(harness.routeNativeElement?.textContent).not.toContain(sessionUser.email);
-    demoAuth.logout();
+    const realHome = await harness.navigateByUrl('/preview/home', HomeComponent);
+    expect(TestBed.inject(Router).url).toBe('/home');
+    expect(harness.routeDebugElement?.injector.get(FavoritesService)).toBe(realFavorites);
     expect(realAuth.isAuthenticated()).toBe(true);
     expect(localStorage.getItem('auth_token')).toBe('test-session');
-    expect(JSON.parse(localStorage.getItem('user')!)).toEqual(sessionUser);
-    http.expectNone(() => true);
-
-    const realHome = await harness.navigateByUrl('/home', HomeComponent);
+    expect(localStorage.getItem('user')).toBe(JSON.stringify(sessionUser));
     expect(harness.routeDebugElement!.injector.get(AuthService)).toBe(realAuth);
     expect(realHome.firstName).toBe('Pessoa');
     const lines = http.expectOne((request) => request.url === `${environment.apiUrl}/lines`);
@@ -93,17 +73,17 @@ describe('Development demo and real session separation', () => {
     http.expectOne(`${environment.apiUrl}/favorites`).flush({ data: [] });
     harness.detectChanges();
     expect(realHome.lines().map((line) => line.code)).toEqual(['REAL']);
-    expect(realHome.isPreview).toBe(false);
+    expect(harness.routeNativeElement?.querySelector('.home-preview-notice')).toBeNull();
     expect(realAuth.getUser()).toEqual(sessionUser);
   });
 
-  it('opens the demo without a token and never creates a real session', async () => {
+  it('redireciona a URL demonstrativa para a entrada pública sem criar sessão', async () => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user');
     const realAuth = TestBed.inject(AuthService);
     const harness = await RouterTestingHarness.create();
-    const profile = await harness.navigateByUrl('/preview/profile', ProfileComponent);
-    expect(profile.user?.email).toBe('demo@example.invalid');
+    await harness.navigateByUrl('/preview/profile', OnboardingComponent);
+    expect(TestBed.inject(Router).url).toBe('/');
     expect(realAuth.isAuthenticated()).toBe(false);
     expect(localStorage.getItem('auth_token')).toBeNull();
     expect(localStorage.getItem('user')).toBeNull();
@@ -112,14 +92,14 @@ describe('Development demo and real session separation', () => {
 
   it('keeps real API failure visible instead of substituting demonstration lines', async () => {
     const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/preview/home', HomeComponent);
-    const home = await harness.navigateByUrl('/home', HomeComponent);
+    const home = await harness.navigateByUrl('/preview/home', HomeComponent);
+    expect(TestBed.inject(Router).url).toBe('/home');
     http
       .expectOne((request) => request.url === `${environment.apiUrl}/lines`)
       .flush({ message: 'Indisponível' }, { status: 503, statusText: 'Service Unavailable' });
     http.expectOne(`${environment.apiUrl}/favorites`).flush({ data: [] });
     harness.detectChanges();
-    expect(home.isPreview).toBe(false);
+    expect(harness.routeNativeElement?.querySelector('.home-preview-notice')).toBeNull();
     expect(home.lines()).toEqual([]);
     expect(home.error()).toContain('Não foi possível carregar');
     expect(harness.routeNativeElement?.querySelectorAll('.compact-line')).toHaveLength(0);

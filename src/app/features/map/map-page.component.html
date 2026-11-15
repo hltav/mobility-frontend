@@ -2,7 +2,7 @@
   <header class="map-page-header">
     <div class="map-heading">
       <h1 id="map-title">Mapa ao vivo</h1>
-      <p>São Paulo • {{ lines().length }} linhas{{ isPreview ? ' • DEMO' : '' }}</p>
+      <p>São Paulo • {{ lines().length }} linhas</p>
     </div>
     <div class="map-page-tools">
       <app-theme-switcher /><button
@@ -10,7 +10,7 @@
         class="map-control"
         (click)="useCurrentLocation()"
         [disabled]="locating()"
-        [attr.aria-label]="isPreview ? 'Simular localização atual' : 'Usar localização atual'"
+        aria-label="Usar localização atual"
         [attr.aria-busy]="locating()"
       >
         <app-icon name="locate" /></button
@@ -75,12 +75,6 @@
             (ngModelChange)="setShowRoute($event)"
           />Mostrar trajeto da linha selecionada</label
         >
-        @if (isPreview) {
-          <p>Dados de exemplo • posições e trajeto simulados.</p>
-          <a routerLink="/map">Usar dados reais</a>
-        } @else if (previewEnabled) {
-          <a routerLink="/preview/map">Visualizar com dados de exemplo</a>
-        }
         <button type="button" class="map-close-filters" (click)="filtersOpen.set(false)">
           Concluir
         </button>
@@ -121,9 +115,6 @@
       <div class="map-empty" role="status">
         <p>{{ linesError() || 'Nenhuma linha disponível para exibir no mapa.' }}</p>
         <button type="button" (click)="loadLines()">Tentar novamente</button>
-        @if (previewEnabled && !isPreview) {
-          <a routerLink="/preview/map">Visualizar com dados de exemplo</a>
-        }
       </div>
     } @else if (!loadingLines() && !visibleLines().length) {
       <p class="map-message" role="status">Nenhuma linha corresponde aos filtros.</p>

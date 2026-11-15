@@ -5,7 +5,7 @@ import { of, Subject, throwError } from 'rxjs';
 import { NearbyStopsResponse } from '../../core/schemas/nearby-stop.schema';
 import { StopsService } from '../../core/services/stops.service';
 import { MapComponent } from '../../shared/components/map/map.component';
-import { PREVIEW_NEARBY_STOPS } from '../preview/preview-data';
+import { TEST_NEARBY_STOPS } from '../../../testing/fixtures/transit.fixture';
 import { NearbyStopsComponent } from './nearby-stops.component';
 
 @Component({ selector: 'app-map', standalone: true, template: '' })
@@ -20,20 +20,20 @@ describe('Nearby stops screen', () => {
   const service = { nearest: vi.fn() };
   const result = () => ({
     point: { lat: -23.5505, lng: -46.6333 },
-    stops: structuredClone(PREVIEW_NEARBY_STOPS),
+    stops: structuredClone(TEST_NEARBY_STOPS),
   });
   beforeEach(() => {
     vi.clearAllMocks();
     service.nearest.mockReturnValue(of(result()));
   });
-  function render(params: Record<string, string> = {}, preview = false) {
+  function render(params: Record<string, string> = {}) {
     TestBed.configureTestingModule({
       imports: [NearbyStopsComponent],
       providers: [
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { queryParamMap: convertToParamMap(params), data: { preview } } },
+          useValue: { snapshot: { queryParamMap: convertToParamMap(params) } },
         },
         { provide: StopsService, useValue: service },
       ],
@@ -66,10 +66,10 @@ describe('Nearby stops screen', () => {
     const fixture = render();
     expect(service.nearest).not.toHaveBeenCalled();
     expect(fixture.nativeElement.textContent).toContain('Use sua localização');
-    expect(fixture.nativeElement.querySelector('a[href="/preview/stops"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('a[href="/preview/stops"]')).toBeNull();
   });
   it('updates selection and opens the corresponding map and information dialogs', () => {
-    const fixture = render({}, true);
+    const fixture = render({ address: 'Origem de teste' });
     const dialogs = fixture.nativeElement.querySelectorAll(
       'dialog',
     ) as NodeListOf<HTMLDialogElement>;
@@ -138,15 +138,15 @@ describe('Nearby stops screen', () => {
     }
   });
 
-  it('keeps preview navigation and labels simulated arrival times', () => {
-    const fixture = render({}, true);
+  it('mantém o retorno à Home e exibe tempos fornecidos pelo serviço de teste', () => {
+    const fixture = render({ address: 'Origem de teste' });
     expect(
       fixture.nativeElement
         .querySelector('a[aria-label="Voltar para a Home"]')
         .getAttribute('href'),
-    ).toBe('/preview/home');
+    ).toBe('/home');
     expect(fixture.nativeElement.querySelector('.nearby-footnote').textContent).toContain(
-      'simulados',
+      'somente quando disponíveis',
     );
     expect(fixture.nativeElement.querySelector('.nearby-line-chips').textContent).toContain(
       '3 min',

@@ -7,9 +7,6 @@
     <app-theme-switcher />
   </header>
   <div class="favorites-body" [attr.aria-busy]="isLoading()">
-    @if (isPreview) {
-      <p class="favorites-demo">Prévia • favoritos temporários</p>
-    }
     @if (isLoading()) {
       <div class="favorites-message" role="status">
         <app-icon name="heart" />
@@ -32,12 +29,11 @@
         <a
           class="favorite-example"
           [routerLink]="searchPath"
-          [queryParams]="{ term: '146' }"
-          aria-label="Buscar a linha 146 para adicionar aos favoritos"
+          aria-label="Buscar linhas para adicionar aos favoritos"
         >
-          <span class="favorite-code">146</span
+          <span class="favorite-code"><app-icon name="search" /></span
           ><span
-            ><strong>CALLAO - Exemplo</strong
+            ><strong>Buscar linhas</strong
             ><small>Toque em <span class="example-heart">♥</span> para salvar</small></span
           >
         </a>

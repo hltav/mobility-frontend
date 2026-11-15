@@ -5,6 +5,7 @@ import { BusLinesService } from '../../core/services/bus-lines.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { BusLine } from '../../core/schemas/bus-line.schema';
 import { SearchComponent } from './search.component';
+import { ToastService } from '../../shared/services/toast.service';
 
 // Integration boundary introduced by the Home; existing search logic stays in place.
 describe('SearchComponent journey entry', () => {
@@ -13,6 +14,7 @@ describe('SearchComponent journey entry', () => {
     findNearby: vi.fn(),
     findNearbySafe: vi.fn(),
     findTripLinesSafe: vi.fn(),
+    reverseGeocode: vi.fn(),
   };
   const favorites = { getFavorites: vi.fn(), addFavorite: vi.fn() };
   const line: BusLine = {
@@ -34,6 +36,7 @@ describe('SearchComponent journey entry', () => {
     busLines.findNearby.mockReturnValue(of({ origin: null, lines: [] }));
     busLines.findNearbySafe.mockReturnValue(of({ origin: null, lines: [] }));
     busLines.findTripLinesSafe.mockReturnValue(of([]));
+    busLines.reverseGeocode.mockReturnValue(of('Origem de teste'));
   });
   function render(params: Record<string, string> = {}) {
     TestBed.configureTestingModule({
@@ -55,9 +58,7 @@ describe('SearchComponent journey entry', () => {
   it('preserves the existing available-lines entry without journey parameters', () => {
     const fixture = render();
     expect(fixture.componentInstance).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('a[href="/preview/search"]')?.textContent).toContain(
-      'Visualizar com dados de exemplo',
-    );
+    expect(fixture.nativeElement.querySelector('a[href="/preview/search"]')).toBeNull();
     expect(busLines.getAll).toHaveBeenCalledWith({ per_page: 50 });
     expect(busLines.findTripLinesSafe).not.toHaveBeenCalled();
   });
@@ -194,5 +195,156 @@ describe('SearchComponent journey entry', () => {
     render({ from: 'Terminal Lapa' });
     expect(busLines.findNearby).toHaveBeenCalledWith('Terminal Lapa');
     expect(busLines.findTripLinesSafe).not.toHaveBeenCalled();
+  });
+
+  it('intersecta e deduplica resultados textuais sem incluir linhas só de uma extremidade', () => {
+    const unrelated = { ...line, id: 2, database_id: 8, code: '15' };
+    busLines.getAll
+      .mockReturnValueOnce(of([line, { ...line }, unrelated]))
+      .mockReturnValueOnce(of([{ ...line, origin: ' LÁPA ', destination: ' centro ' }]));
+    const fixture = render({ from: 'Origem de teste', to: 'Destino de teste' });
+    expect(fixture.componentInstance.allLines().map((item) => item.database_id)).toEqual([7]);
+    expect(fixture.nativeElement.querySelectorAll('.compact-line')).toHaveLength(1);
+    expect(fixture.componentInstance.isLoading()).toBe(false);
+  });
+
+  it('usa linhas do trajeto sem duplicatas quando as consultas textuais e próximas estão vazias', () => {
+    busLines.findTripLinesSafe.mockReturnValue(of([line, { ...line }]));
+    const fixture = render({ from: 'Origem de teste', to: 'Destino de teste' });
+    expect(fixture.componentInstance.allLines().map((item) => item.code)).toEqual(['8000-10']);
+    expect(fixture.componentInstance.isRouteMode()).toBe(true);
+    expect(fixture.componentInstance.isLoading()).toBe(false);
+  });
+
+  it('não usa fallback de trajeto quando há resultados textuais sem linha em comum', () => {
+    busLines.getAll
+      .mockReturnValueOnce(of([line]))
+      .mockReturnValueOnce(of([{ ...line, id: 2, code: '15' }]));
+    busLines.findTripLinesSafe.mockReturnValue(of([line]));
+    const fixture = render({ from: 'Origem de teste', to: 'Destino de teste' });
+    expect(fixture.componentInstance.allLines()).toEqual([]);
+    expect(fixture.componentInstance.isLoading()).toBe(false);
+    expect(fixture.nativeElement.textContent).toContain('Nenhuma linha encontrada');
+  });
+
+  for (const [originLength, destinationLength] of [
+    [101, 100],
+    [100, 200],
+    [200, 200],
+    [100, 100],
+  ]) {
+    it(`preserva o trajeto com origem de ${originLength} e destino de ${destinationLength} caracteres`, () => {
+      const from = 'O'.repeat(originLength);
+      const to = 'D'.repeat(destinationLength);
+      const nearbyLine = { ...line, distance_km: 0.5 };
+      busLines.findNearbySafe.mockImplementation((address: string) =>
+        of({
+          origin: { address, lat: -23.55, lng: -46.63 },
+          lines: [nearbyLine],
+        }),
+      );
+      busLines.findTripLinesSafe.mockReturnValue(of([line]));
+      busLines.getAll.mockReturnValue(of([line]));
+
+      const fixture = render({ from, to });
+
+      expect(busLines.findTripLinesSafe).toHaveBeenCalledWith(from, to);
+      expect(busLines.findNearbySafe.mock.calls).toEqual([
+        [from, 2],
+        [to, 2],
+      ]);
+      const eligibleTerms = [from, to].filter((term) => term.length <= 100);
+      expect(busLines.getAll.mock.calls).toEqual(
+        eligibleTerms.map((term) => [{ term, per_page: 100 }]),
+      );
+      expect(fixture.componentInstance.fromTerm).toBe(from);
+      expect(fixture.componentInstance.toTerm).toBe(to);
+      expect(fixture.componentInstance.allLines().map((item) => item.database_id)).toEqual([7]);
+      expect(fixture.componentInstance.isLoading()).toBe(false);
+      expect(fixture.nativeElement.querySelectorAll('.compact-line')).toHaveLength(1);
+    });
+  }
+
+  describe('GPS e geocodificação controlados pelo teste', () => {
+    const getCurrentPosition = vi.fn<Geolocation['getCurrentPosition']>();
+    const position: GeolocationPosition = {
+      coords: {
+        latitude: -23.55,
+        longitude: -46.63,
+        accuracy: 10,
+        altitude: null,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+        toJSON: () => ({}),
+      },
+      timestamp: 0,
+      toJSON: () => ({}),
+    };
+    let original: PropertyDescriptor | undefined;
+
+    beforeEach(() => {
+      original = Object.getOwnPropertyDescriptor(navigator, 'geolocation');
+      getCurrentPosition.mockReset();
+      busLines.findNearby.mockReturnValue(
+        of({
+          origin: { address: 'Origem de teste', lat: -23.55, lng: -46.63 },
+          lines: [],
+        }),
+      );
+      Object.defineProperty(navigator, 'geolocation', {
+        configurable: true,
+        value: { getCurrentPosition },
+      });
+    });
+    afterEach(() => {
+      if (original) Object.defineProperty(navigator, 'geolocation', original);
+      else Reflect.deleteProperty(navigator, 'geolocation');
+    });
+
+    it('consulta o endereço do GPS e inicia a busca próxima após a resposta', () => {
+      const fixture = render();
+      const address = new Subject<string>();
+      busLines.reverseGeocode.mockReturnValue(address);
+      getCurrentPosition.mockImplementation((success) => success(position));
+      fixture.componentInstance.useCurrentLocation();
+      expect(busLines.reverseGeocode).toHaveBeenCalledWith(-23.55, -46.63);
+      expect(fixture.componentInstance.isLocating()).toBe(true);
+      expect(busLines.findNearby).not.toHaveBeenCalled();
+      address.next('Origem de teste');
+      address.complete();
+      expect(fixture.componentInstance.fromTerm).toBe('Origem de teste');
+      expect(busLines.findNearby).toHaveBeenCalledWith('Origem de teste');
+      expect(fixture.componentInstance.isLocating()).toBe(false);
+    });
+
+    it('preserva o fallback atual de coordenadas quando a geocodificação falha', () => {
+      const fixture = render();
+      busLines.reverseGeocode.mockReturnValue(throwError(() => new Error('offline')));
+      getCurrentPosition.mockImplementation((success) => success(position));
+      fixture.componentInstance.useCurrentLocation();
+      expect(fixture.componentInstance.fromTerm).toBe('-23.55000, -46.63000');
+      expect(busLines.findNearby).toHaveBeenCalledWith('-23.55000, -46.63000');
+      expect(fixture.componentInstance.isLocating()).toBe(false);
+    });
+
+    it('libera o carregamento e informa a recusa de GPS sem chamar a API', () => {
+      const fixture = render();
+      const toast = vi.spyOn(TestBed.inject(ToastService), 'show').mockImplementation(() => {});
+      getCurrentPosition.mockImplementation((_success, failure) => {
+        failure?.({
+          code: 1,
+          message: 'Permissão negada no teste',
+          PERMISSION_DENIED: 1,
+          POSITION_UNAVAILABLE: 2,
+          TIMEOUT: 3,
+        });
+      });
+      fixture.componentInstance.useCurrentLocation();
+      expect(fixture.componentInstance.isLocating()).toBe(false);
+      expect(busLines.reverseGeocode).not.toHaveBeenCalled();
+      expect(busLines.findNearby).not.toHaveBeenCalled();
+      expect(toast).toHaveBeenCalledWith('Erro ao obter localização', 'error');
+    });
   });
 });

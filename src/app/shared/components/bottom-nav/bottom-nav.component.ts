@@ -10,7 +10,7 @@ import { IconComponent, IconName } from '../icon/icon.component';
     <div class="bottom-nav-inner">
       @for (item of items; track item.path) {
         <a
-          [routerLink]="preview() ? '/preview' + item.path : item.path"
+          [routerLink]="item.path"
           routerLinkActive="is-active"
           ariaCurrentWhenActive="page"
           [routerLinkActiveOptions]="activeMatchOptions"
@@ -28,6 +28,7 @@ export class BottomNavComponent {
     matrixParams: 'ignored',
     fragment: 'ignored',
   };
+  // Preserva o input usado pelo shell OPE-37; os destinos são sempre oficiais.
   readonly preview = input(false);
   readonly items: { path: string; label: string; icon: IconName }[] = [
     { path: '/home', label: 'Início', icon: 'home' },

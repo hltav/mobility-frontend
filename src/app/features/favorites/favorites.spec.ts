@@ -1,21 +1,14 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, provideRouter, Router } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { FavoritesComponent } from './favorites.component';
 import { FavoritesService } from '../../core/services/favorites.service';
-import { PREVIEW_LINES } from '../preview/preview-data';
+import { TEST_LINES } from '../../../testing/fixtures/transit.fixture';
 
-function setup(
-  lines = [{ ...PREVIEW_LINES[0], id: 7, database_id: 7, favorite_id: 91 }],
-  preview = false,
-) {
+function setup(lines = [{ ...TEST_LINES[0], id: 7, database_id: 7, favorite_id: 91 }]) {
   const service = { getFavorites: vi.fn(() => of(lines)), removeFavorite: vi.fn(() => of({})) };
   TestBed.configureTestingModule({
-    providers: [
-      provideRouter([]),
-      { provide: FavoritesService, useValue: service },
-      { provide: ActivatedRoute, useValue: { snapshot: { data: { preview } } } },
-    ],
+    providers: [provideRouter([]), { provide: FavoritesService, useValue: service }],
   });
   const fixture = TestBed.createComponent(FavoritesComponent);
   fixture.detectChanges();
@@ -23,12 +16,12 @@ function setup(
 }
 
 describe('Favorites page', () => {
-  it('renders the reference empty state and example as a search link', () => {
+  it('mostra estado vazio com acesso à busca sem linha fictícia', () => {
     const { fixture } = setup([]);
     expect(fixture.nativeElement.querySelector('h1').textContent).toBe('Favoritos');
     expect(fixture.nativeElement.textContent).toContain('Nenhuma linha favorita ainda');
     expect(fixture.nativeElement.querySelector('.favorite-example').getAttribute('href')).toBe(
-      '/search?term=146',
+      '/search',
     );
   });
 
@@ -72,10 +65,12 @@ describe('Favorites page', () => {
     expect(fixture.nativeElement.querySelector('.favorites-empty')).not.toBeNull();
   });
 
-  it('keeps empty state navigation inside the preview', () => {
-    const { fixture } = setup([], true);
+  it('usa a busca oficial no estado vazio mesmo com providers de teste', () => {
+    const { fixture } = setup([]);
+    expect(fixture.nativeElement.textContent).not.toContain('CALLAO');
+    expect(fixture.nativeElement.textContent).not.toContain('146');
     expect(fixture.nativeElement.querySelector('.favorite-example').getAttribute('href')).toBe(
-      '/preview/search?term=146',
+      '/search',
     );
   });
 });
