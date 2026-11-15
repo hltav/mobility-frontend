@@ -19,28 +19,15 @@
       </div>
       <div>
         <dt>BUSCAS</dt>
-        <dd
-          [attr.aria-label]="
-            isPreview ? '24 buscas de exemplo' : 'Histórico de buscas indisponível'
-          "
-        >
-          {{ isPreview ? 24 : '—' }}
-        </dd>
+        <dd aria-label="Histórico de buscas indisponível">—</dd>
       </div>
       <div>
         <dt>ROTAS</dt>
-        <dd
-          [attr.aria-label]="isPreview ? '3 rotas de exemplo' : 'Histórico de rotas indisponível'"
-        >
-          {{ isPreview ? 3 : '—' }}
-        </dd>
+        <dd aria-label="Histórico de rotas indisponível">—</dd>
       </div>
     </dl>
   </header>
   <div class="profile-body">
-    @if (isPreview) {
-      <p class="profile-demo">Prévia • estatísticas de exemplo</p>
-    }
     <section class="profile-settings" aria-label="Configurações da conta">
       <button type="button" class="profile-menu-item" (click)="preferences(themeSection)">
         <span class="profile-menu-icon"><app-icon name="settings" /></span
@@ -118,11 +105,11 @@
       <p class="profile-install-error" role="alert">{{ pwa.installError() }}</p>
     }
     <button type="button" class="profile-logout" (click)="logout()">
-      <app-icon name="logout" />{{ isPreview ? 'Sair da prévia' : 'Sair da conta' }}
+      <app-icon name="logout" />Sair da conta
     </button>
     <footer>
-      Mobility Project © {{ isPreview ? '2026' : currentYear }} • São Paulo • Dados SPTrans • PWA •
-      Tema {{ theme.theme() }}
+      Mobility Project © {{ currentYear }} • São Paulo • Dados SPTrans • PWA • Tema
+      {{ theme.theme() }}
     </footer>
   </div>
 </section>
@@ -148,8 +135,7 @@
         paradas próximas. Você pode revogar essa permissão nas configurações do navegador.
       </p>
       <p>
-        As informações de transporte são fornecidas pela SPTrans. Na prévia, os veículos, trajetos e
-        horários são exemplos simulados.
+        As informações de transporte são fornecidas pela SPTrans e consultadas pela API do projeto.
       </p>
     }
     @case ('about') {

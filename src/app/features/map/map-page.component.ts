@@ -1,7 +1,7 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import {
   EMPTY,
   Subject,
@@ -19,12 +19,11 @@ import { RealtimeService } from '../../core/services/real-time.service';
 import { ThemeSwitcherComponent } from '../../shared/components/theme-switcher/theme-switcher.component';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { MapComponent, MapPoint } from '../../shared/components/map/map.component';
-import { PREVIEW_ENABLED } from '../../preview.config';
 
 @Component({
   selector: 'app-map-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, MapComponent, ThemeSwitcherComponent, IconComponent],
+  imports: [FormsModule, MapComponent, ThemeSwitcherComponent, IconComponent],
   templateUrl: './map-page.component.html',
   styleUrl: './map-page.component.css',
 })
@@ -36,8 +35,6 @@ export class MapPageComponent implements OnInit {
   private readonly lineChanges = new Subject<number | null>();
   private routeRequest?: Subscription;
   private linesRequest?: Subscription;
-  readonly isPreview = this.route.snapshot.data?.['preview'] === true;
-  readonly previewEnabled = PREVIEW_ENABLED;
   readonly lines = signal<BusLine[]>([]);
   readonly selectedLine = signal<BusLine | null>(null);
   readonly buses = signal<RealTimeBus[]>([]);
@@ -82,7 +79,7 @@ export class MapPageComponent implements OnInit {
     if (this.loadingLines()) return 'Buscando linhas…';
     const line = this.selectedLine();
     if (!line) return 'Selecione uma linha';
-    return `Linha ${line.code} • ${this.loadingBuses() ? 'Atualizando…' : this.busesError() ? 'Sem atualização' : this.isPreview ? 'DEMO' : 'Ao vivo'}`;
+    return `Linha ${line.code} • ${this.loadingBuses() ? 'Atualizando…' : this.busesError() ? 'Sem atualização' : 'Ao vivo'}`;
   });
 
   ngOnInit() {
@@ -202,11 +199,6 @@ export class MapPageComponent implements OnInit {
   }
   useCurrentLocation() {
     this.locationMessage.set('');
-    if (this.isPreview) {
-      this.userPoint.set({ lat: -23.5505, lng: -46.6333 });
-      this.locationMessage.set('Localização simulada para esta prévia.');
-      return;
-    }
     if (this.locating()) return;
     if (!navigator.geolocation) {
       this.locationMessage.set('Localização indisponível neste navegador.');

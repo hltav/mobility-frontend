@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Subscription, finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { BusLinesService } from '../../core/services/bus-lines.service';
@@ -11,7 +11,6 @@ import { IconComponent } from '../../shared/components/icon/icon.component';
 import { LineCardComponent } from '../../shared/components/line-card/line-card.component';
 import { ThemeSwitcherComponent } from '../../shared/components/theme-switcher/theme-switcher.component';
 import { ToastService } from '../../shared/services/toast.service';
-import { PREVIEW_ENABLED } from '../../preview.config';
 
 @Component({
   selector: 'app-home',
@@ -27,12 +26,10 @@ export class HomeComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  readonly isPreview = inject(ActivatedRoute).snapshot.data?.['preview'] === true;
-  readonly previewEnabled = PREVIEW_ENABLED;
-  readonly profilePath = this.isPreview ? '/preview/profile' : '/profile';
-  readonly favoritesPath = this.isPreview ? '/preview/favorites' : '/favorites';
-  readonly searchPath = this.isPreview ? '/preview/search' : '/search';
-  readonly mapPath = this.isPreview ? '/preview/map' : '/map';
+  readonly profilePath = '/profile';
+  readonly favoritesPath = '/favorites';
+  readonly searchPath = '/search';
+  readonly mapPath = '/map';
   private linesRequest?: Subscription;
   readonly lines = signal<BusLine[]>([]);
   readonly loading = signal(true);
@@ -94,7 +91,7 @@ export class HomeComponent implements OnInit {
   }
 
   findStops() {
-    void this.router.navigate([this.isPreview ? '/preview/stops' : '/stops'], {
+    void this.router.navigate(['/stops'], {
       queryParams: { address: this.fromTerm.trim() || null },
     });
   }
@@ -134,11 +131,6 @@ export class HomeComponent implements OnInit {
   }
 
   useCurrentLocation() {
-    if (this.isPreview) {
-      this.fromTerm = 'Origem simulada — São Paulo';
-      this.loadNearby();
-      return;
-    }
     if (this.locating()) return;
     this.locationMessage.set('');
     if (!navigator.geolocation) {
@@ -203,16 +195,6 @@ export class HomeComponent implements OnInit {
   toggleFavorite(line: BusLine) {
     if (!this.favoritesReady() || this.pendingFavorite() !== null) return;
     if (this.isFavorite(line)) {
-      if (this.isPreview) {
-        this.favoritesService.removeFavorite(line.id).subscribe(() => {
-          this.favoriteIds.update((ids) => {
-            const next = new Set(ids);
-            next.delete(line.database_id ?? line.id);
-            return next;
-          });
-        });
-        return;
-      }
       void this.router.navigate(['/favorites']);
       return;
     }
@@ -233,8 +215,7 @@ export class HomeComponent implements OnInit {
   }
 
   viewDetails(line: BusLine) {
-    if (line.database_id != null)
-      void this.router.navigate([this.isPreview ? '/preview/lines' : '/lines', line.database_id]);
+    if (line.database_id != null) void this.router.navigate(['/lines', line.database_id]);
     else
       this.toast.show(
         'Os detalhes desta linha ainda não estão disponíveis no cadastro local.',

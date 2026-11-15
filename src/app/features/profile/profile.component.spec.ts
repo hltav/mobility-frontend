@@ -1,14 +1,13 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, provideRouter, Router } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ProfileComponent } from './profile.component';
 import { AuthService } from '../../core/services/auth.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { ThemeService } from '../../core/services/theme.service';
-import { PREVIEW_LINES } from '../preview/preview-data';
-import { PreviewAuthService } from '../preview/preview-services';
+import { TEST_LINES } from '../../../testing/fixtures/transit.fixture';
 
-function setup(preview = false, unavailable = false) {
+function setup(unavailable = false) {
   const auth = {
     getUser: () => ({ name: 'Hudson Tavares', email: 'hudson@example.com' }),
     logout: vi.fn(),
@@ -16,17 +15,14 @@ function setup(preview = false, unavailable = false) {
   TestBed.configureTestingModule({
     providers: [
       provideRouter([]),
-      preview
-        ? { provide: AuthService, useClass: PreviewAuthService }
-        : { provide: AuthService, useValue: auth },
+      { provide: AuthService, useValue: auth },
       {
         provide: FavoritesService,
         useValue: {
           getFavorites: () =>
-            unavailable ? throwError(() => new Error('offline')) : of(PREVIEW_LINES),
+            unavailable ? throwError(() => new Error('offline')) : of(TEST_LINES),
         },
       },
-      { provide: ActivatedRoute, useValue: { snapshot: { data: { preview } } } },
     ],
   });
   const fixture = TestBed.createComponent(ProfileComponent);
@@ -81,21 +77,20 @@ describe('Profile page', () => {
     ).toContain('System');
   });
   it('does not report zero favorites when the API is unavailable and logs out using the existing auth integration', () => {
-    const { fixture, auth } = setup(false, true);
+    const { fixture, auth } = setup(true);
     expect(fixture.nativeElement.querySelector('dd').textContent).toBe('—');
     fixture.nativeElement.querySelector('.profile-logout').click();
     expect(auth.logout).toHaveBeenCalledOnce();
   });
-  it('labels sample activity and exits the preview without logging out the real account', () => {
-    const { fixture, auth } = setup(true);
-    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
-    expect(fixture.nativeElement.querySelector('.profile-demo').textContent).toContain('exemplo');
-    expect(fixture.nativeElement.querySelector('h1').textContent).toBe('Pessoa de demonstração');
+  it('não apresenta estatísticas demonstrativas e usa o logout oficial', () => {
+    const { fixture, auth } = setup();
+    expect(fixture.nativeElement.querySelector('.profile-demo')).toBeNull();
+    expect(fixture.nativeElement.querySelector('h1').textContent).toBe('Hudson Tavares');
     expect(fixture.nativeElement.querySelector('.profile-account p').textContent).toBe(
-      'demo@example.invalid',
+      'hudson@example.com',
     );
+    expect(fixture.nativeElement.textContent).not.toContain('24 buscas de exemplo');
     fixture.nativeElement.querySelector('.profile-logout').click();
-    expect(auth.logout).not.toHaveBeenCalled();
-    expect(navigate).toHaveBeenCalledWith(['/']);
+    expect(auth.logout).toHaveBeenCalledOnce();
   });
 });

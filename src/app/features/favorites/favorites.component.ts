@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { BusLine } from '../../core/schemas/bus-line.schema';
 import { FavoritesService } from '../../core/services/favorites.service';
@@ -20,8 +20,7 @@ export class FavoritesComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
-  readonly isPreview = inject(ActivatedRoute).snapshot.data?.['preview'] === true;
-  readonly searchPath = this.isPreview ? '/preview/search' : '/search';
+  readonly searchPath = '/search';
   readonly favorites = signal<BusLine[]>([]);
   readonly isLoading = signal(true);
   readonly error = signal('');
@@ -74,9 +73,6 @@ export class FavoritesComponent implements OnInit {
   }
 
   viewDetails(line: BusLine) {
-    void this.router.navigate([
-      this.isPreview ? '/preview/lines' : '/lines',
-      line.database_id ?? line.id,
-    ]);
+    void this.router.navigate(['/lines', line.database_id ?? line.id]);
   }
 }

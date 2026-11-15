@@ -36,22 +36,27 @@ describe('Public and protected routing', () => {
       expect(router.url).toBe('/home');
     }
   });
-  it('opens only the isolated preview without a session', async () => {
-    const router = TestBed.inject(Router);
-    await router.navigateByUrl('/preview/search');
-    expect(router.url).toBe('/preview/search');
-    await router.navigateByUrl('/preview/stops');
-    expect(router.url).toBe('/preview/stops');
-    await router.navigateByUrl('/preview/map');
-    expect(router.url).toBe('/preview/map');
-    await router.navigateByUrl('/preview/favorites');
-    expect(router.url).toBe('/preview/favorites');
-    await router.navigateByUrl('/preview/profile');
-    expect(router.url).toBe('/preview/profile');
-    await router.navigateByUrl('/preview/lines/146');
-    expect(router.url).toBe('/preview/lines/146');
-    expect(authenticated()).toBe(false);
-  });
+  for (const signedIn of [false, true]) {
+    it(`não disponibiliza URLs demonstrativas ${signedIn ? 'com' : 'sem'} sessão`, async () => {
+      authenticated.set(signedIn);
+      const router = TestBed.inject(Router);
+      expect(routes.some((route) => route.path?.startsWith('preview'))).toBe(false);
+      for (const url of [
+        '/preview',
+        '/preview/home',
+        '/preview/search',
+        '/preview/stops',
+        '/preview/map',
+        '/preview/favorites',
+        '/preview/profile',
+        '/preview/lines/146',
+      ]) {
+        await router.navigateByUrl(url);
+        expect(router.url).toBe(signedIn ? '/home' : '/');
+        expect(authenticated()).toBe(signedIn);
+      }
+    });
+  }
   it('keeps the existing guards on all authenticated routes', async () => {
     const router = TestBed.inject(Router);
     for (const url of [

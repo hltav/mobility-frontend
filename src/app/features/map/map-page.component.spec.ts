@@ -6,7 +6,7 @@ import { BusLinesService } from '../../core/services/bus-lines.service';
 import { RealtimeService } from '../../core/services/real-time.service';
 import { RealTimeBus } from '../../core/schemas/real-timeBus.schema';
 import { MapComponent } from '../../shared/components/map/map.component';
-import { PREVIEW_LINES, PREVIEW_STOPS } from '../preview/preview-data';
+import { TEST_LINES, TEST_STOPS } from '../../../testing/fixtures/transit.fixture';
 import { MapPageComponent } from './map-page.component';
 
 @Component({ selector: 'app-map', standalone: true, template: '' })
@@ -26,21 +26,21 @@ describe('Live map page', () => {
   const realtime = { getBuses: vi.fn() };
   beforeEach(() => {
     vi.clearAllMocks();
-    lines.getAll.mockReturnValue(of(structuredClone(PREVIEW_LINES)));
-    lines.getStops.mockReturnValue(of(PREVIEW_STOPS));
+    lines.getAll.mockReturnValue(of(structuredClone(TEST_LINES)));
+    lines.getStops.mockReturnValue(of(TEST_STOPS));
     lines.getRoutePath.mockImplementation((points) => of(points));
     realtime.getBuses.mockImplementation((id: number) =>
-      of(structuredClone(PREVIEW_LINES.find((line) => line.id === id)?.buses ?? [])),
+      of(structuredClone(TEST_LINES.find((line) => line.id === id)?.buses ?? [])),
     );
   });
-  function render(params: Record<string, string> = {}, preview = false) {
+  function render(params: Record<string, string> = {}) {
     TestBed.configureTestingModule({
       imports: [MapPageComponent],
       providers: [
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { queryParamMap: convertToParamMap(params), data: { preview } } },
+          useValue: { snapshot: { queryParamMap: convertToParamMap(params) } },
         },
         { provide: BusLinesService, useValue: lines },
         { provide: RealtimeService, useValue: realtime },
@@ -102,14 +102,14 @@ describe('Live map page', () => {
     fixture.componentInstance.setShowRoute(false);
     expect(fixture.componentInstance.routePoints()).toHaveLength(0);
   });
-  it('offers a visible mock entry when available lines cannot be loaded', () => {
+  it('permite tentar novamente sem oferecer entrada demonstrativa quando a API falha', () => {
     lines.getAll.mockReturnValue(throwError(() => new Error('offline')));
     const fixture = render();
     expect(fixture.nativeElement.querySelector('.map-empty').textContent).toContain(
       'Não foi possível carregar',
     );
-    expect(fixture.nativeElement.querySelector('a[href="/preview/map"]')).not.toBeNull();
-    lines.getAll.mockReturnValue(of(PREVIEW_LINES));
+    expect(fixture.nativeElement.querySelector('a[href="/preview/map"]')).toBeNull();
+    lines.getAll.mockReturnValue(of(TEST_LINES));
     fixture.nativeElement.querySelector('.map-empty button').click();
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelectorAll('.map-line-chip')).toHaveLength(3);
@@ -120,7 +120,7 @@ describe('Live map page', () => {
       realtime.getBuses
         .mockReturnValueOnce(of([]))
         .mockReturnValueOnce(throwError(() => new Error('offline')))
-        .mockReturnValue(of(PREVIEW_LINES[0].buses));
+        .mockReturnValue(of(TEST_LINES[0].buses));
       const fixture = render();
       vi.advanceTimersByTime(10000);
       expect(fixture.componentInstance.busesError()).toBe(true);
@@ -135,14 +135,27 @@ describe('Live map page', () => {
       vi.useRealTimers();
     }
   });
-  it('uses a simulated location in preview without requesting location permission', () => {
-    const fixture = render({}, true);
-    fixture.componentInstance.useCurrentLocation();
-    expect(fixture.componentInstance.userPoint()).toEqual({ lat: -23.5505, lng: -46.6333 });
-    expect(fixture.componentInstance.liveLabel()).toContain('DEMO');
+  it('solicita GPS sem inventar posição enquanto aguarda o navegador', () => {
+    const original = Object.getOwnPropertyDescriptor(navigator, 'geolocation');
+    const getCurrentPosition = vi.fn();
+    Object.defineProperty(navigator, 'geolocation', {
+      configurable: true,
+      value: { getCurrentPosition },
+    });
+    try {
+      const fixture = render();
+      fixture.componentInstance.useCurrentLocation();
+      expect(getCurrentPosition).toHaveBeenCalledOnce();
+      expect(fixture.componentInstance.userPoint()).toBeNull();
+      expect(fixture.componentInstance.locating()).toBe(true);
+      expect(fixture.componentInstance.liveLabel()).not.toContain('DEMO');
+    } finally {
+      if (original) Object.defineProperty(navigator, 'geolocation', original);
+      else Reflect.deleteProperty(navigator, 'geolocation');
+    }
   });
   it('does not use a SPTrans-only identifier for the internal positions endpoint', () => {
-    lines.getAll.mockReturnValue(of([{ ...PREVIEW_LINES[0], database_id: null }]));
+    lines.getAll.mockReturnValue(of([{ ...TEST_LINES[0], database_id: null }]));
     const fixture = render();
     expect(realtime.getBuses).not.toHaveBeenCalled();
     expect(fixture.componentInstance.selectedLine()).toBeNull();

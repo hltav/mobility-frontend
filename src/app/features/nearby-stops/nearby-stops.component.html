@@ -18,7 +18,7 @@
     @if (originLabel()) {
       <p class="nearby-origin">{{ originLabel() }}</p>
     }
-    <p class="nearby-radius">Raio 500 m • até 5 paradas{{ isPreview ? ' • DEMO' : '' }}</p>
+    <p class="nearby-radius">Raio 500 m • até 5 paradas</p>
   </header>
   <div class="nearby-content">
     @if (loading()) {
@@ -28,9 +28,6 @@
         <p>{{ error() }}</p>
         <button type="button" (click)="retry()">Tentar novamente</button
         ><a [routerLink]="homePath">Informar origem na Home</a>
-        @if (previewEnabled && !isPreview) {
-          <a routerLink="/preview/stops">Visualizar com dados de exemplo</a>
-        }
       </div>
     } @else if (!stops().length) {
       <div class="nearby-state" role="status">
@@ -41,9 +38,6 @@
               : 'Use sua localização ou informe uma origem na Home para encontrar paradas próximas.'
           }}
         </p>
-        @if (previewEnabled && !isPreview) {
-          <a routerLink="/preview/stops">Visualizar com dados de exemplo</a>
-        }
       </div>
     } @else {
       <section class="nearby-list" aria-labelledby="nearby-list-title">
@@ -51,7 +45,7 @@
           <h2 id="nearby-list-title">
             {{ stops().length }} paradas • {{ distance(stops()[0].distance_meters) }} mais próxima
           </h2>
-          <span><i aria-hidden="true"></i>{{ isPreview ? 'DEMO' : 'Atualizado' }}</span>
+          <span><i aria-hidden="true"></i>Atualizado</span>
         </div>
         <ol>
           @for (stop of stops(); track stop.id; let last = $last) {
@@ -115,11 +109,8 @@
         }
       </div>
       <p class="nearby-footnote">
-        {{
-          isPreview
-            ? 'Dados de exemplo. Distâncias, paradas e tempos desta prévia são simulados.'
-            : 'Distâncias em linha reta a partir da origem consultada. Tempos são exibidos somente quando disponíveis.'
-        }}
+        Distâncias em linha reta a partir da origem consultada. Tempos são exibidos somente quando
+        disponíveis.
       </p>
     }
   </div>
@@ -143,7 +134,7 @@
         [centerLng]="selectedStop()?.lng ?? -46.6333"
       />
     }
-    <p>{{ isPreview ? 'Localização de exemplo' : 'Localização da parada' }}</p>
+    <p>Localização da parada</p>
   </dialog>
   <dialog
     #stopInfo
@@ -181,9 +172,6 @@
           </dd>
         </div>
       </dl>
-      @if (isPreview) {
-        <p>Informações simuladas para visualizar a interface.</p>
-      }
     }
   </dialog>
 </section>

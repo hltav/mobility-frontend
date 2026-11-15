@@ -42,7 +42,8 @@ describe('BottomNavComponent', () => {
     expect(links[2].getAttribute('aria-current')).toBe('page');
     fixture.componentRef.setInput('preview', true);
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('a[href="/preview/map"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('a[href^="/preview"]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('a[href="/map"]')).not.toBeNull();
     for (const item of fixture.componentInstance.items) {
       expect(routes.some((route) => '/' + route.path === item.path && route.loadComponent)).toBe(
         true,

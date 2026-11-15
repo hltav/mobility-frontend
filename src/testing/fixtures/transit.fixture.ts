@@ -1,9 +1,10 @@
-import { NearbyStop } from '../../core/schemas/nearby-stop.schema';
-import { BusLine } from '../../core/schemas/bus-line.schema';
-import { RealTimeBus } from '../../core/schemas/real-timeBus.schema';
-import { LineStop } from '../../core/schemas/bus-line-service.schema';
+import type { NearbyStop } from '../../app/core/schemas/nearby-stop.schema';
+import type { BusLine } from '../../app/core/schemas/bus-line.schema';
+import type { RealTimeBus } from '../../app/core/schemas/real-timeBus.schema';
+import type { LineStop } from '../../app/core/schemas/bus-line-service.schema';
 
-// Fixed visual fixtures. These are not official routes, positions or predictions.
+// Dados sintéticos exclusivos dos testes unitários; não importar no runtime.
+// Mantêm os cenários existentes sem depender dos dados demonstrativos de /preview.
 const vehicles = (code: string, count: number): RealTimeBus[] =>
   Array.from({ length: count }, (_, index) => ({
     prefix: `DEMO-${code}-${String(index + 1).padStart(2, '0')}`,
@@ -16,7 +17,7 @@ const vehicles = (code: string, count: number): RealTimeBus[] =>
     status: index % 3 === 0 ? 'stopped' : 'moving',
   }));
 
-export const PREVIEW_LINES: BusLine[] = [
+export const TEST_LINES: BusLine[] = [
   {
     id: 146,
     database_id: 146,
@@ -58,7 +59,7 @@ export const PREVIEW_LINES: BusLine[] = [
   },
 ];
 
-export const PREVIEW_STOPS: LineStop[] = [
+export const TEST_STOPS: LineStop[] = [
   { name: 'Terminal Lapa', code: 'TPL-01', scheduled_time: '05:40', line_codes: ['146', '8000'] },
   { name: 'Av. Ermano Marchetti', code: 'P-112', scheduled_time: '05:44', line_codes: ['146'] },
   { name: 'Rua Catão, 832', code: 'P-114', scheduled_time: '05:47', line_codes: ['146', '152'] },
@@ -83,7 +84,7 @@ export const PREVIEW_STOPS: LineStop[] = [
   order: index + 1,
 }));
 
-export const PREVIEW_NEARBY_STOPS: NearbyStop[] = [
+export const TEST_NEARBY_STOPS: NearbyStop[] = [
   { name: 'Av. Pacaembu, 1200', distance_meters: 127, line_codes: ['146', '152', '8000'] },
   { name: 'R. Cardoso de Almeida, 500', distance_meters: 240, line_codes: ['15', '175T'] },
   { name: 'Pça. Marrey Jr. - Estádio', distance_meters: 410, line_codes: ['N802', '146'] },

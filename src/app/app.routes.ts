@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
-import { PREVIEW_ENTRY_ROUTES } from './preview.config';
 
 export const routes: Routes = [
   {
@@ -11,7 +10,6 @@ export const routes: Routes = [
       import('./features/nearby-stops/nearby-stops.component').then((m) => m.NearbyStopsComponent),
     canActivate: [authGuard],
   },
-  ...PREVIEW_ENTRY_ROUTES,
   {
     path: 'map',
     title: 'Mapa — Mobility',

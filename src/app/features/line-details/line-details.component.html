@@ -9,13 +9,7 @@
           type="button"
           class="details-icon"
           [disabled]="!line() || !favoritesReady() || favoriteBusy()"
-          [attr.aria-label]="
-            line()?.isFavorite
-              ? isPreview
-                ? 'Remover favorito de exemplo'
-                : 'Abrir favoritos'
-              : 'Favoritar linha'
-          "
+          [attr.aria-label]="line()?.isFavorite ? 'Abrir favoritos' : 'Favoritar linha'"
           [attr.aria-pressed]="!!line()?.isFavorite"
           (click)="toggleFavorite()"
         >
@@ -34,11 +28,8 @@
     </header>
     @if (infoOpen()) {
       <aside id="line-info" class="details-note" role="status">
-        {{
-          isPreview
-            ? 'Esta é uma prévia. Veículos, trajeto, paradas e horários são dados simulados.'
-            : 'As posições podem ter atraso. A hora da consulta indica quando os dados foram recebidos; não representa uma previsão de chegada.'
-        }}
+        As posições podem ter atraso. A hora da consulta indica quando os dados foram recebidos; não
+        representa uma previsão de chegada.
       </aside>
     }
     @if (isLoading()) {
@@ -58,18 +49,13 @@
           <h1 id="line-title">{{ currentLine.name }}</h1>
           <p><app-icon name="route" />{{ currentLine.origin }} → {{ currentLine.destination }}</p>
           <div class="line-badges">
-            @if (isPreview) {
-              <span class="demo-badge">DEMO</span>
-            }
-            <span class="active-badge"
-              >{{ buses().length }} ônibus {{ isPreview ? 'de exemplo' : 'localizados' }}</span
-            >
+            <span class="active-badge">{{ buses().length }} ônibus localizados</span>
           </div>
         </div>
       </div>
       <dl class="line-metadata">
         <div>
-          <dt>{{ isPreview ? 'Atualização' : 'Última consulta' }}</dt>
+          <dt>Última consulta</dt>
           <dd>{{ lastQueryLabel() }}</dd>
         </div>
         <div>
@@ -78,7 +64,7 @@
         </div>
         <div>
           <dt>Origem</dt>
-          <dd>{{ isPreview ? 'Simulação' : 'SPTrans' }}</dd>
+          <dd>SPTrans</dd>
         </div>
       </dl>
     }
@@ -107,8 +93,7 @@
     <section #mapCard class="line-map-card" aria-label="Mapa da linha">
       <div class="line-map-canvas">
         <span class="map-live-badge"
-          ><i aria-hidden="true"></i
-          >{{ isPreview ? 'DEMO' : busesError() ? 'Sem atualização' : 'SPTrans' }} •
+          ><i aria-hidden="true"></i>{{ busesError() ? 'Sem atualização' : 'SPTrans' }} •
           {{ validBuses().length }} veículos</span
         ><app-map
           [height]="196"
@@ -122,8 +107,7 @@
       </div>
       <div class="map-footer">
         <p>
-          {{ isPreview ? 'Posições e trajeto simulados' : 'Última consulta de posições'
-          }}<strong>{{ isPreview ? 'Dados de exemplo' : lastQueryLabel() }}</strong>
+          Última consulta de posições<strong>{{ lastQueryLabel() }}</strong>
         </p>
         <button type="button" (click)="openMap(fullMap)">
           <app-icon name="expand" />Abrir mapa completo
@@ -249,11 +233,8 @@
       <aside class="details-note stops-note">
         <app-icon name="info" />
         <p>
-          {{
-            isPreview
-              ? 'Paradas, trajetos e horários desta prévia são simulados e não representam a operação real.'
-              : 'Horários são exibidos quando fornecidos. As posições dos veículos não garantem o horário de chegada à parada.'
-          }}
+          Horários são exibidos quando fornecidos. As posições dos veículos não garantem o horário
+          de chegada à parada.
         </p>
       </aside>
     </section>
@@ -287,9 +268,7 @@
         />
       }
       <button class="map-location-action" type="button" (click)="requestUserLocation()">
-        <app-icon name="locate" />{{
-          isPreview ? 'Simular minha localização' : 'Usar minha localização'
-        }}
+        <app-icon name="locate" />Usar minha localização
       </button>
     </dialog>
   }

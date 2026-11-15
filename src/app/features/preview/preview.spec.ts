@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
-import { PREVIEW_PROVIDERS } from './preview-services';
-import { PREVIEW_LINES } from './preview-data';
+import { TEST_PROVIDERS } from '../../../testing/providers/transit.providers';
+import { TEST_LINES } from '../../../testing/fixtures/transit.fixture';
 import { SearchComponent } from '../search/search.component';
 import { HomeComponent } from '../home/home.component';
 import { LineDetailsComponent } from '../line-details/line-details.component';
@@ -10,12 +10,11 @@ function configureRoute(id = '146') {
   TestBed.configureTestingModule({
     providers: [
       provideRouter([]),
-      ...PREVIEW_PROVIDERS,
+      ...TEST_PROVIDERS,
       {
         provide: ActivatedRoute,
         useValue: {
           snapshot: {
-            data: { preview: true },
             queryParamMap: convertToParamMap({}),
             paramMap: convertToParamMap({ id }),
           },
@@ -25,8 +24,8 @@ function configureRoute(id = '146') {
   });
 }
 
-describe('Isolated visual preview', () => {
-  it('renders the reference fixtures without HTTP services and keeps favorites temporary', () => {
+describe('Fluxos oficiais com providers exclusivos de teste', () => {
+  it('renderiza fixtures sem HTTP e abre a gestão oficial de favoritos após salvar', () => {
     configureRoute();
     const fixture = TestBed.createComponent(SearchComponent);
     fixture.detectChanges();
@@ -38,49 +37,46 @@ describe('Isolated visual preview', () => {
     expect(fixture.componentInstance.allLines().map((line) => line.buses.length)).toEqual([
       4, 7, 3,
     ]);
-    expect(fixture.nativeElement.querySelector('.preview-notice').textContent).toContain(
-      'Dados de exemplo',
-    );
+    expect(fixture.nativeElement.querySelector('.preview-notice')).toBeNull();
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     const heart = fixture.nativeElement.querySelector('.compact-favorite');
     heart.click();
     fixture.detectChanges();
     expect(heart.getAttribute('aria-pressed')).toBe('true');
     heart.click();
     fixture.detectChanges();
-    expect(heart.getAttribute('aria-pressed')).toBe('false');
-    expect(PREVIEW_LINES.every((line) => !line.isFavorite)).toBe(true);
-    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    expect(heart.getAttribute('aria-pressed')).toBe('true');
+    expect(navigate).toHaveBeenCalledWith(['/favorites']);
+    expect(TEST_LINES.every((line) => !line.isFavorite)).toBe(true);
     fixture.nativeElement.querySelector('.compact-details').click();
-    expect(navigate).toHaveBeenCalledWith(['/preview/lines', 146]);
+    expect(navigate).toHaveBeenCalledWith(['/lines', 146]);
   });
 
-  it('renders the same fixtures on home and keeps navigation inside the preview', () => {
+  it('renderiza fixtures isoladas na Home com navegação para as rotas oficiais', () => {
     configureRoute();
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Pessoa');
     expect(fixture.nativeElement.querySelector('a.home-avatar').getAttribute('href')).toBe(
-      '/preview/profile',
+      '/profile',
     );
-    expect(
-      fixture.nativeElement.querySelector('a.shortcut[href="/preview/favorites"]'),
-    ).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('a.shortcut[href="/favorites"]')).not.toBeNull();
     expect(fixture.nativeElement.querySelectorAll('.compact-line')).toHaveLength(3);
     expect(fixture.nativeElement.querySelector('.home-footer a').getAttribute('href')).toBe(
-      '/preview/search',
+      '/search',
     );
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     fixture.componentInstance.search();
-    expect(navigate).toHaveBeenCalledWith(['/preview/search'], {
+    expect(navigate).toHaveBeenCalledWith(['/search'], {
       queryParams: { from: null, to: null },
     });
     fixture.componentInstance.findStops();
-    expect(navigate).toHaveBeenCalledWith(['/preview/stops'], { queryParams: { address: null } });
+    expect(navigate).toHaveBeenCalledWith(['/stops'], { queryParams: { address: null } });
     fixture.componentInstance.viewDetails(fixture.componentInstance.lines()[0]);
-    expect(navigate).toHaveBeenCalledWith(['/preview/lines', 146]);
+    expect(navigate).toHaveBeenCalledWith(['/lines', 146]);
   });
 
-  it('opens sample details with buses and both directions, then returns to the preview', () => {
+  it('renderiza detalhes com providers de teste e retorna à busca oficial', () => {
     configureRoute('15');
     TestBed.overrideComponent(LineDetailsComponent, { set: { template: '', imports: [] } });
     const fixture = TestBed.createComponent(LineDetailsComponent);
@@ -97,11 +93,12 @@ describe('Isolated visual preview', () => {
     });
     component.toggleFavorite();
     expect(component.line()?.isFavorite).toBe(true);
-    component.toggleFavorite();
-    expect(component.line()?.isFavorite).toBe(false);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    component.toggleFavorite();
+    expect(component.line()?.isFavorite).toBe(true);
+    expect(navigate).toHaveBeenCalledWith(['/favorites']);
     component.goBack();
-    expect(navigate).toHaveBeenCalledWith(['/preview/search']);
+    expect(navigate).toHaveBeenCalledWith(['/search']);
     fixture.destroy();
   });
 });
