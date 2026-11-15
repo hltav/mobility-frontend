@@ -10,12 +10,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   debounceTime,
   distinctUntilChanged,
   finalize,
   forkJoin,
+  of,
   Subject,
   Subscription,
 } from 'rxjs';
@@ -27,19 +28,11 @@ import { LineCardComponent } from '../../shared/components/line-card/line-card.c
 import { ThemeSwitcherComponent } from '../../shared/components/theme-switcher/theme-switcher.component';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { ToastService } from '../../shared/services/toast.service';
-import { PREVIEW_ENABLED } from '../../preview.config';
 
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    LineCardComponent,
-    ThemeSwitcherComponent,
-    IconComponent,
-    RouterLink,
-  ],
+  imports: [CommonModule, FormsModule, LineCardComponent, ThemeSwitcherComponent, IconComponent],
   templateUrl: './search.component.html',
   styleUrl: './search.css',
 })
@@ -49,8 +42,6 @@ export class SearchComponent implements OnInit {
   private toastService = inject(ToastService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  readonly isPreview = this.route.snapshot.data?.['preview'] === true;
-  readonly previewEnabled = PREVIEW_ENABLED;
   private cdr = inject(ChangeDetectorRef);
 
   private readonly destroyRef = inject(DestroyRef);
@@ -107,11 +98,6 @@ export class SearchComponent implements OnInit {
 
   // Geolocalização via browser → reverse geocoding no backend
   useCurrentLocation() {
-    if (this.isPreview) {
-      this.fromTerm = 'Origem simulada — São Paulo';
-      this.searchByCurrentTerms();
-      return;
-    }
     if (!navigator.geolocation) {
       this.toastService.show('Geolocalização não suportada pelo navegador', 'error');
       return;
@@ -199,8 +185,14 @@ export class SearchComponent implements OnInit {
       tripLines: this.busLinesService.findTripLinesSafe(fromAddress, toAddress),
       originNearby: this.busLinesService.findNearbySafe(fromAddress, 2),
       destinationNearby: this.busLinesService.findNearbySafe(toAddress, 2),
-      originText: this.busLinesService.getAll({ term: fromAddress, per_page: 100 }),
-      destinationText: this.busLinesService.getAll({ term: toAddress, per_page: 100 }),
+      originText:
+        fromAddress.length <= 100
+          ? this.busLinesService.getAll({ term: fromAddress, per_page: 100 })
+          : of([]),
+      destinationText:
+        toAddress.length <= 100
+          ? this.busLinesService.getAll({ term: toAddress, per_page: 100 })
+          : of([]),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -358,17 +350,6 @@ export class SearchComponent implements OnInit {
   toggleFavorite(line: BusLine) {
     if (!this.favoritesReady() || this.pendingFavorite() !== null) return;
     if (line.isFavorite) {
-      if (this.isPreview) {
-        this.favoritesService.removeFavorite(line.id).subscribe(() => {
-          this.favorites.update((ids) => {
-            const next = new Set(ids);
-            next.delete(line.database_id ?? line.id);
-            return next;
-          });
-          this.updateFavoritesStatus();
-        });
-        return;
-      }
       void this.router.navigate(['/favorites']);
       return;
     }
@@ -388,8 +369,7 @@ export class SearchComponent implements OnInit {
   }
 
   viewDetails(line: BusLine) {
-    if (line.database_id != null)
-      void this.router.navigate([this.isPreview ? '/preview/lines' : '/lines', line.database_id]);
+    if (line.database_id != null) void this.router.navigate(['/lines', line.database_id]);
     else
       this.toastService.show(
         'Os detalhes desta linha ainda não estão disponíveis no cadastro local.',

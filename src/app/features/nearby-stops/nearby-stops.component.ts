@@ -7,7 +7,6 @@ import { StopsService } from '../../core/services/stops.service';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { MapComponent, MapPoint } from '../../shared/components/map/map.component';
 import { ThemeSwitcherComponent } from '../../shared/components/theme-switcher/theme-switcher.component';
-import { PREVIEW_ENABLED } from '../../preview.config';
 
 @Component({
   selector: 'app-nearby-stops',
@@ -22,9 +21,7 @@ export class NearbyStopsComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private request?: Subscription;
   private lastOrigin?: NearbyStopsRequest;
-  readonly isPreview = this.route.snapshot.data?.['preview'] === true;
-  readonly previewEnabled = PREVIEW_ENABLED;
-  readonly homePath = this.isPreview ? '/preview/home' : '/home';
+  readonly homePath = '/home';
   readonly stops = signal<NearbyStop[]>([]);
   readonly selectedStop = signal<NearbyStop | null>(null);
   readonly origin = signal<MapPoint | null>(null);
@@ -44,10 +41,6 @@ export class NearbyStopsComponent implements OnInit {
   });
 
   ngOnInit() {
-    if (this.isPreview) {
-      this.load({ lat: -23.5505, lng: -46.6333 });
-      return;
-    }
     const params = this.route.snapshot.queryParamMap;
     const address = params.get('address')?.trim();
     if (address) {
@@ -96,11 +89,6 @@ export class NearbyStopsComponent implements OnInit {
     else this.useCurrentLocation();
   }
   useCurrentLocation() {
-    if (this.isPreview) {
-      this.originLabel.set('Origem simulada — São Paulo');
-      this.load({ lat: -23.5505, lng: -46.6333 });
-      return;
-    }
     if (this.locating() || this.loading()) return;
     this.lastOrigin = undefined;
     if (!navigator.geolocation) {

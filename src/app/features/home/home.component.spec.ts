@@ -94,9 +94,7 @@ describe('HomeComponent', () => {
     busLines.getAll.mockReturnValue(of([]));
     const fixture = render();
     expect(fixture.nativeElement.textContent).toContain('Nenhuma linha disponível');
-    expect(fixture.nativeElement.querySelector('a[href="/preview/home"]')?.textContent).toContain(
-      'Visualizar com dados de exemplo',
-    );
+    expect(fixture.nativeElement.querySelector('a[href="/preview/home"]')).toBeNull();
   });
 
   it('opens nearby stops from the Home action and passes the origin address', () => {

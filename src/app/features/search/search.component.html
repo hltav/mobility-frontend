@@ -4,12 +4,6 @@
       <h1 id="search-title">Buscar linhas</h1>
       <app-theme-switcher />
     </div>
-    @if (isPreview) {
-      <div class="preview-notice" role="status">
-        <span>Dados de exemplo • favoritos temporários</span
-        ><a routerLink="/search">Usar dados reais</a>
-      </div>
-    }
     <div class="search-input-wrap" role="search">
       <app-icon name="search" />
       <label for="line-search" class="sr-only">Buscar por código, nome, origem ou destino</label>
@@ -73,9 +67,6 @@
     </nav>
     @if (filtersOpen()) {
       <div id="search-filters" class="search-filters">
-        @if (previewEnabled && !isPreview) {
-          <a routerLink="/preview/search" class="preview-link">Visualizar dados de exemplo</a>
-        }
         <label for="search-origin">Origem</label>
         <input
           id="search-origin"
@@ -152,16 +143,6 @@
           <p>Tente outro código, nome, origem ou destino, ou ajuste os filtros.</p>
         </div>
       }
-    }
-    @if (
-      previewEnabled &&
-      !isPreview &&
-      !isLoading() &&
-      (searchError() || filteredLines().length === 0)
-    ) {
-      <a routerLink="/preview/search" class="button-primary w-full"
-        >Visualizar com dados de exemplo</a
-      >
     }
   </div>
 </section>

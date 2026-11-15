@@ -17,12 +17,6 @@
   </header>
 
   <div class="home-content">
-    @if (isPreview) {
-      <div class="home-preview-notice" role="status">
-        <span>Dados de exemplo • favoritos temporários</span
-        ><a routerLink="/home">Usar dados reais</a>
-      </div>
-    }
     <form
       class="surface journey-form"
       (ngSubmit)="search()"
@@ -145,11 +139,6 @@
             <p class="location-feedback" role="status">Nenhuma linha corresponde ao filtro.</p>
           }
         </div>
-      }
-      @if (previewEnabled && !isPreview && !loading() && (error() || lines().length === 0)) {
-        <a routerLink="/preview/home" class="button-primary w-full mt-3"
-          >Visualizar com dados de exemplo</a
-        >
       }
       @if (favoritesFailed()) {
         <p class="location-feedback" role="status">

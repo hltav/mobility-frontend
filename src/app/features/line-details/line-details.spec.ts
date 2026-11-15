@@ -6,7 +6,7 @@ import { BusLinesService } from '../../core/services/bus-lines.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { RealtimeService } from '../../core/services/real-time.service';
 import { MapComponent } from '../../shared/components/map/map.component';
-import { PREVIEW_LINES, PREVIEW_STOPS } from '../preview/preview-data';
+import { TEST_LINES, TEST_STOPS } from '../../../testing/fixtures/transit.fixture';
 import { RealTimeBusSchema } from '../../core/schemas/real-timeBus.schema';
 import { LineDetailsComponent } from './line-details.component';
 
@@ -27,24 +27,24 @@ describe('Line details', () => {
   const realtime = { getBuses: vi.fn() };
   beforeEach(() => {
     vi.clearAllMocks();
-    lines.getById.mockReturnValue(of(structuredClone(PREVIEW_LINES[0])));
+    lines.getById.mockReturnValue(of(structuredClone(TEST_LINES[0])));
     lines.getStops.mockImplementation((_id: number, direction: number) =>
-      of(direction === 2 ? [...PREVIEW_STOPS].reverse() : PREVIEW_STOPS),
+      of(direction === 2 ? [...TEST_STOPS].reverse() : TEST_STOPS),
     );
     lines.getRoutePath.mockImplementation((points) => of(points));
     favorites.getFavorites.mockReturnValue(of([]));
     favorites.addFavorite.mockReturnValue(of({}));
     favorites.removeFavorite.mockReturnValue(of({}));
-    realtime.getBuses.mockReturnValue(of(PREVIEW_LINES[0].buses));
+    realtime.getBuses.mockReturnValue(of(TEST_LINES[0].buses));
   });
-  function render(preview = false) {
+  function render() {
     TestBed.configureTestingModule({
       imports: [LineDetailsComponent],
       providers: [
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap({ id: '146' }), data: { preview } } },
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: '146' }) } },
         },
         { provide: BusLinesService, useValue: lines },
         { provide: FavoritesService, useValue: favorites },
@@ -68,8 +68,8 @@ describe('Line details', () => {
     fixture.detectChanges();
     expect(fixture.componentInstance.currentDirection()).toBe(2);
     expect(fixture.componentInstance.routePoints()[0]).toEqual({
-      lat: PREVIEW_STOPS.at(-1)!.lat,
-      lng: PREVIEW_STOPS.at(-1)!.lng,
+      lat: TEST_STOPS.at(-1)!.lat,
+      lng: TEST_STOPS.at(-1)!.lng,
     });
     expect(fixture.nativeElement.querySelector('.stops-timeline h3').textContent).toContain(
       'Terminal Callao',
@@ -81,22 +81,23 @@ describe('Line details', () => {
     fixture.nativeElement.querySelector('.line-map-card').scrollIntoView = scroll;
     fixture.nativeElement.querySelector('.stop-action').click();
     fixture.detectChanges();
-    expect(fixture.componentInstance.selectedStop()).toEqual(PREVIEW_STOPS[0]);
+    expect(fixture.componentInstance.selectedStop()).toEqual(TEST_STOPS[0]);
     expect(fixture.componentInstance.userLocation()).toBeNull();
     expect(scroll).toHaveBeenCalled();
     fixture.componentInstance.switchDirection(2);
     expect(fixture.componentInstance.selectedStop()).toBeNull();
   });
-  it('keeps preview favorites local and returns to the sample search', () => {
-    const fixture = render(true);
+  it('mantém favoritos isolados no teste e retorna à busca oficial', () => {
+    const fixture = render();
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     fixture.componentInstance.toggleFavorite();
     expect(favorites.addFavorite).toHaveBeenCalledWith(expect.objectContaining({ id: 146 }));
     fixture.componentInstance.toggleFavorite();
-    expect(favorites.removeFavorite).toHaveBeenCalledWith(146);
+    expect(favorites.removeFavorite).not.toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith(['/favorites']);
     fixture.componentInstance.goBack();
-    expect(navigate).toHaveBeenCalledWith(['/preview/search']);
-    expect(fixture.nativeElement.textContent).toContain('DEMO');
+    expect(navigate).toHaveBeenCalledWith(['/search']);
+    expect(fixture.nativeElement.querySelector('.demo-badge')).toBeNull();
   });
   it('shows a failed positions query and recovers on retry', () => {
     realtime.getBuses.mockReturnValueOnce(throwError(() => new Error('offline')));
@@ -127,7 +128,7 @@ describe('Line details', () => {
       realtime.getBuses
         .mockReturnValueOnce(of([]))
         .mockReturnValueOnce(throwError(() => new Error('offline')))
-        .mockReturnValue(of(PREVIEW_LINES[0].buses));
+        .mockReturnValue(of(TEST_LINES[0].buses));
       const fixture = render();
       vi.advanceTimersByTime(10000);
       expect(fixture.componentInstance.busesError()).toBe(true);
